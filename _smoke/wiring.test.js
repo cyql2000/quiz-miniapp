@@ -564,5 +564,67 @@ eq('存疑原因分支检查：漏写的会被抓出来',
 // 布尔标记只能由 kind 推导，不许在别处单独赋值 —— 两处各写各的迟早会不一致
 ok('answerSuspect 一律由 kind 推导', !/answerSuspect\s*=\s*true/.test(coreSrc));
 
+// --- 第 15 节：弹层（.sheet）内容一多，必须自己滚，不许溢出也不许穿透 ---
+//
+// 为什么需要它：首页的题库操作弹层原本是整块 flex 平铺，app.wxss 给了
+// max-height: 82vh 但**没有滚动容器**。选项一多（有进度、有错题、有标记）
+// 就整块溢出屏幕，「删除该题库」被切在屏幕外点不到；更要命的是弹层自身
+// 没有可滚动区域，滚轮会**穿透到后面的首页题库列表**，看着是"滚错了地方"。
+// 数据层、组件 JS 全对，没有任何断言能发现它 —— 只有真机点开才看得见。
+//
+// 中途试过「头部固定 + 正文滚动 + 删除/取消固定底栏」，真机上固定底栏会
+// **盖住正文里还没滚到的内容**（「导出该题库」被压在底栏下），已改回单列整条滚。
+// 所以这里断言的是「删除/取消必须在滚动区里面」，别再抓回去做固定底栏。
+// ---------------------------------------------------------------------------
+const HOME_WXML = fs.readFileSync(path.join(BASE, 'pages/index/index.wxml'), 'utf8');
+const HOME_CSS = fs.readFileSync(path.join(BASE, 'pages/index/index.wxss'), 'utf8');
+const HOME_JS = fs.readFileSync(path.join(BASE, 'pages/index/index.js'), 'utf8');
+const sheetBody = ruleBody(HOME_CSS, '.sheet');
+ok('首页弹层样式能取到（防空跑）', sheetBody.length > 0);
+ok('弹层：panel 内点击不许穿透到遮罩（有 catchtap）', /class="sheet"[^>]*catchtap=/.test(HOME_WXML));
+ok('弹层：有独立滚动容器 sheet-body', /class="sheet-body"[^>]*scroll-y/.test(HOME_WXML)
+  || /scroll-y[^>]*class="sheet-body"/.test(HOME_WXML));
+ok('弹层：滚动区写在 scroll-view 上（不是 view）', /<scroll-view class="sheet-body"/.test(HOME_WXML));
+// 关键：删除/取消必须在滚动区**内部**，跟其他项一起滚
+// （放固定底栏会盖住正文里没滚到的内容，真机已复现）
+ok('弹层：删除在滚动区内部（不做固定底栏）', (() => {
+  const bodyAt = HOME_WXML.indexOf('<scroll-view class="sheet-body"');
+  const bodyEnd = HOME_WXML.indexOf('</scroll-view>', bodyAt);
+  const delAt = HOME_WXML.indexOf('data-id="{{sheet.setId}}">删除该题库');
+  return bodyAt >= 0 && delAt > bodyAt && delAt < bodyEnd;
+})());
+ok('弹层：取消也在滚动区内部', (() => {
+  const bodyAt = HOME_WXML.indexOf('<scroll-view class="sheet-body"');
+  const bodyEnd = HOME_WXML.indexOf('</scroll-view>', bodyAt);
+  const at = HOME_WXML.indexOf('bindtap="closeSheet"', bodyAt);
+  return at > bodyAt && at < bodyEnd;
+})());
+ok('弹层：面板不许有固定底栏（会盖住没滚到的内容）', HOME_WXML.indexOf('class="sheet-foot"') < 0);
+ok('弹层：面板 overflow:hidden 兜住越界内容', /overflow\s*:\s*hidden/.test(sheetBody));
+ok('弹层：滚动区 min-height:0（不写 flex 子项不收缩，高度会被内容顶开）',
+  /min-height\s*:\s*0/.test(ruleBody(HOME_CSS, '.sheet-body')));
+// 最要命的一条：高度必须是 js 算出来的 px，不能靠 flex 推导。
+// flex 推导出的高度 == 内容高 → scroll-view 永不溢出 → 永远不滚 →
+// 滚轮穿透到下面的首页列表（真机复现过两轮才定位到）。
+ok('弹层：滚动区高度绑定到算出来的 bodyH（flex 推导的高度滚不动）',
+  /class="sheet-body"[^>]*style="\{\{bodyH/.test(HOME_WXML));
+ok('弹层：有内容自然高的量尺 sheet-inner', /class="sheet-inner"/.test(HOME_WXML));
+ok('弹层：面板 catchtouchmove 兜住触摸穿透',
+  /class="sheet"[^>]*catchtouchmove=/.test(HOME_WXML));
+// 纯计算函数必须存在且被页面引用（改了公式但忘了接，页面就会静默用 flex 兜底）
+const utilSrc = fs.readFileSync(path.join(BASE, 'utils/util.js'), 'utf8');
+ok('弹层高度：util 里导出了 sheetBodyHeightOf',
+  /sheetBodyHeightOf/.test(utilSrc) && /module\.exports[\s\S]*sheetBodyHeightOf/.test(utilSrc));
+ok('弹层高度：页面引用了 util 的 sheetBodyHeightOf',
+  /require\(['"][^'"]*util['"]\)/.test(HOME_JS)
+  && /util\.sheetBodyHeightOf|sheetBodyHeightOf\(/.test(HOME_JS));
+// 穿透的根因就在这里：面板本身能不能滚？不能滚的容器滚轮必然传给下层
+ok('弹层：面板本体不自己滚，交给 sheet-body（avoid 双重滚动）',
+  !/overflow-y\s*:\s*(auto|scroll)/.test(sheetBody));
+// 滚动区底部留白：最后一条（取消）不贴滚动区底边
+ok('弹层：滚动区末尾有留白元素', HOME_WXML.indexOf('class="sheet-body-pad"') > 0);
+eq('弹层结构检查：拆分标记缺一不可',
+  ['sheet-head', 'sheet-body'].filter((k) => HOME_WXML.indexOf(`class="${k}"`) < 0), []);
+
 console.log(fail ? `\n${fail} 项失败` : '\n全部通过');
 process.exit(fail ? 1 : 0);

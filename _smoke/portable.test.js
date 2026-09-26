@@ -184,6 +184,33 @@ page.setData = function (patch, cb) {
 };
 
 (async () => {
+  // ---- 弹层正文区高度（纯计算，先测）----
+  // 为什么必须有它：flex 推导的高度等于内容高，scroll-view 永不溢出、永不可滚，
+  // 滚轮就会穿透到下面的首页列表（真机复现过两轮）。必须算成 px 写死。
+  const U = require(path.join(BASE, 'utils/util.js'));
+  const hOf = U.sheetBodyHeightOf;
+  eq('弹层高度：没屏幕高就算不出来', hOf({ winH: 0 }), 0);
+  // 首帧还没量到内容高（innerH=0）时按可用高兜底，别让面板塌成一条
+  eq('弹层高度：没量到内容时用可用高兜底',
+    hOf({ winH: 800, winW: 750, headH: 100, innerH: 0, safeBottom: 0 }),
+    Math.ceil(800 * 0.82 - 100 - 100));
+  // 内容矮 → 用内容高（面板跟着变矮，不留大片空白）
+  eq('弹层高度：内容矮时取内容高',
+    hOf({ winH: 800, winW: 750, headH: 100, innerH: 300, safeBottom: 0 }), 300);
+  // 内容高 → 夹到可用高（这才是让 scroll-view 可滚的关键）
+  const avail = 800 * 0.82 - 100 - 100;
+  eq('弹层高度：内容高时夹到可用高（scroll-view 才会滚）',
+    hOf({ winH: 800, winW: 750, headH: 100, innerH: 5000, safeBottom: 0 }), Math.ceil(avail));
+  eq('弹层高度：夹紧后必须小于内容自然高（否则不溢出就滚不动）',
+    hOf({ winH: 800, winW: 750, headH: 100, innerH: 5000, safeBottom: 0 }) < 5000, true);
+  // 安全区要扣掉（全面屏 home 条），否则面板底部被裁
+  const withSafe = hOf({ winH: 800, winW: 750, headH: 100, innerH: 5000, safeBottom: 34 });
+  eq('弹层高度：底部安全区要扣掉', withSafe, Math.ceil(avail - 34));
+  // 头部越高，可用高越小
+  eq('弹层高度：头部变高则可用高变小',
+    hOf({ winH: 800, winW: 750, headH: 200, innerH: 5000, safeBottom: 0 })
+    < hOf({ winH: 800, winW: 750, headH: 100, innerH: 5000, safeBottom: 0 }), true);
+
   page.refresh();
   eq('首页刷新后读到题库', page.data.sets.length, 1);
   // 三块汇总数字（含存储占用）延后一个 tick 回填，为的是不占 onShow 的同步时间
