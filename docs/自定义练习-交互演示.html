@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自定义练习 · 交互演示</title>
+<style>
+  :root {
+    --brand: #3E6BF0;
+    --brand-light: #EAF0FE;
+    --success: #12A15D;
+    --danger: #F04242;
+    --warn: #E8A13A;
+    --text: #1E2433;
+    --text-sub: #6C7384;
+    --text-weak: #9AA1B2;
+    --bg: #F4F6FB;
+    --card: #FFFFFF;
+    --line: #ECEFF5;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 28px 16px 60px;
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  }
+  .wrap { max-width: 430px; margin: 0 auto; }
+  .hd { margin-bottom: 18px; }
+  .hd h1 { font-size: 20px; margin: 0 0 6px; }
+  .hd p { margin: 0; color: var(--text-sub); font-size: 13px; }
+  .phone {
+    background: var(--card);
+    border-radius: 20px;
+    box-shadow: 0 6px 28px rgba(30,36,51,.08);
+    overflow: hidden;
+  }
+  .navbar {
+    height: 46px; display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 600; border-bottom: 1px solid var(--line);
+  }
+  .body { padding: 14px 14px 92px; max-height: 78vh; overflow-y: auto; position: relative; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 12px; padding: 14px; margin-bottom: 12px;
+  }
+  .card.summary { border-color: #E3EAFB; background: linear-gradient(180deg,#F8FAFF,#FFF 60%); }
+  .between { display: flex; align-items: center; justify-content: space-between; }
+  .row { display: flex; align-items: center; }
+  .t-md { font-size: 15px; font-weight: 600; }
+  .weak { color: var(--text-weak); font-size: 12px; }
+  .sub { color: var(--text-sub); font-size: 13px; }
+  .tag {
+    display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 5px;
+    font-size: 11px; background: var(--brand-light); color: var(--brand);
+  }
+  .summary-scope { font-size: 13px; color: #4A5164; margin-top: 4px; }
+  .summary-line { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
+  .summary-line b { color: var(--brand); font-size: 15px; }
+  .warn { font-size: 12px; color: var(--warn); margin-top: 6px; min-height: 18px; }
+  .sw-row { display: flex; align-items: center; margin-top: 12px; cursor: pointer; }
+  .sw { width: 38px; height: 22px; border-radius: 11px; background: #DDE2EC; padding: 2px; transition: background .18s; flex: none; }
+  .sw i { display: block; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .18s; }
+  .sw.on { background: var(--brand); }
+  .sw.on i { transform: translateX(16px); }
+  .sw-label { margin-left: 8px; font-size: 14px; }
+  .divider { height: 1px; background: var(--line); margin: 12px 0; }
+  .book { margin-bottom: 10px; }
+  .book-head { display: flex; align-items: center; cursor: pointer; padding: 4px 0; }
+  .book-name { font-size: 14px; font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .books { max-height: 260px; overflow-y: auto; }
+  .chips { display: flex; flex-wrap: wrap; margin-top: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; padding: 5px 10px; margin: 0 6px 6px 0;
+    border-radius: 6px; background: #F4F6FB; border: 1px solid var(--line);
+    font-size: 13px; color: #4A5164; cursor: pointer; user-select: none;
+  }
+  .chip.on { background: var(--brand-light); border-color: var(--brand); color: var(--brand); font-weight: 600; }
+  .chip .n { margin-left: 5px; font-size: 11px; opacity: .65; }
+  .stepper { display: flex; align-items: center; margin-top: 12px; }
+  .step {
+    width: 44px; height: 38px; border-radius: 8px; background: #F4F6FB; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; color: #4A5164; cursor: pointer;
+  }
+  .step:active { background: #E8EDF7; }
+  .step-in {
+    flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+    border: 1px solid var(--line); border-radius: 8px; height: 38px; margin: 0 10px; color: var(--text);
+  }
+  .foot {
+    position: sticky; bottom: 0; margin: 0 -14px -92px; padding: 12px 14px;
+    background: #fff; border-top: 1px solid var(--line);
+  }
+  .btn {
+    width: 100%; height: 44px; border: none; border-radius: 10px; font-size: 15px;
+    background: var(--brand); color: #fff; cursor: pointer; font-weight: 600;
+  }
+  .btn:disabled { background: #B9C8F6; cursor: not-allowed; }
+  .btn.ghost { background: var(--brand-light); color: var(--brand); }
+  .result { margin-top: 12px; }
+  .qlist { display: flex; flex-wrap: wrap; }
+  .qcell {
+    width: 34px; height: 34px; margin: 0 6px 6px 0; border-radius: 8px;
+    background: #F4F6FB; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; color: #4A5164;
+  }
+  .qcell.multi { background: #E5F6EE; border-color: #CBEBDC; color: var(--success); }
+  .qcell.judge { background: #FCF1E0; border-color: #F5E2C4; color: var(--warn); }
+  .qcell.text { background: #F0F2F7; border-color: #E2E6EF; color: var(--text-sub); }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  .note {
+    margin-top: 18px; padding: 14px; border-radius: 12px; background: #fff;
+    border: 1px solid var(--line); font-size: 13px; color: var(--text-sub);
+  }
+  .note h3 { margin: 0 0 8px; font-size: 14px; color: var(--text); }
+  .note ul { margin: 0; padding-left: 18px; }
+  .note li { margin-bottom: 6px; }
+  code { background: #F4F6FB; padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hd">
+    <h1>自定义练习 · 交互演示</h1>
+    <p>这是小程序页面的等价演示：范围筛选、题量设置、随机抽题三者的联动。数据为内置示例。</p>
+  </div>
+
+  <div class="phone">
+    <div class="navbar">自定义练习</div>
+    <div class="body" id="body">
+      <div class="card summary">
+        <div class="between">
+          <span class="t-md">当前设定</span>
+          <span class="tag" id="sumCount">20 题</span>
+        </div>
+        <div class="summary-scope" id="sumScope">全部章节 · 全部题型 · 全部题目</div>
+        <div class="summary-line" id="sumLine"></div>
+        <div class="warn" id="sumWarn"></div>
+      </div>
+
+      <div class="card">
+        <div class="between">
+          <span class="t-md">① 题目范围</span>
+          <span class="weak" id="scopeHint">全部章节</span>
+        </div>
+        <div class="sw-row" onclick="toggleScopeAll()">
+          <span class="sw" id="sw"><i></i></span>
+          <span class="sw-label">全部题库与章节</span>
+          <span style="flex:1"></span>
+          <span class="weak" id="grandTotal"></span>
+        </div>
+        <div id="bookBox" style="display:none">
+          <div class="divider"></div>
+          <div class="weak" style="margin-bottom:8px">点整本书可全选 / 全不选，点单个章节逐个增减</div>
+          <div class="books" id="books"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="between">
+          <span class="t-md">② 题型</span>
+          <span class="weak" id="typeHint">不限</span>
+        </div>
+        <div class="chips" id="typeChips"></div>
+      </div>
+
+      <div class="card">
+        <div class="between">
+          <span class="t-md">③ 练习状态</span>
+          <span class="weak">按错题本与标记筛选</span>
+        </div>
+        <div class="chips" id="stateChips"></div>
+      </div>
+
+      <div class="card">
+        <div class="between">
+          <span class="t-md">④ 本次题量</span>
+          <span class="weak" id="maxHint"></span>
+        </div>
+        <div class="chips" id="presets"></div>
+        <div class="stepper">
+          <div class="step" onclick="stepCount(-5)">−</div>
+          <div class="step-in" id="countInput">20</div>
+          <div class="step" onclick="stepCount(5)">＋</div>
+        </div>
+        <div class="weak" style="margin-top:8px">
+          每次开始都会重新随机抽取并打乱顺序，同一批题不会每次都是同一个次序。
+        </div>
+      </div>
+
+      <div class="card result" id="resultCard" style="display:none">
+        <div class="between">
+          <span class="t-md">本次抽题结果</span>
+          <span class="weak" id="resultOrder"></span>
+        </div>
+        <div class="qlist" id="resultList" style="margin-top:10px"></div>
+        <div class="legend">
+          <span><i style="background:#F4F6FB;border:1px solid #ECEFF5"></i>单选</span>
+          <span><i style="background:#E5F6EE"></i>多选</span>
+          <span><i style="background:#FCF1E0"></i>判断</span>
+          <span><i style="background:#F0F2F7"></i>问答</span>
+        </div>
+        <button class="btn ghost" style="margin-top:12px" onclick="start()">重新抽一次（顺序会变）</button>
+      </div>
+
+      <div class="foot">
+        <button class="btn" id="startBtn" onclick="start()">开始练习</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>演示里可以看的几个联动点</h3>
+    <ul>
+      <li>改任何一项条件，顶部「当前设定」与题量上限立即跟着变</li>
+      <li>范围缩小到不足当前题量时，题量自动夹回并说明原因，而不是静默截断</li>
+      <li>题型/状态选项旁的数字是<b>分面计数</b>：选它之前就能知道会有多少题</li>
+      <li>点两次「重新抽一次」对比题目顺序 —— 抽取与排序是同一次洗牌完成的</li>
+      <li>题为「曾做错过 / 已标记」时，范围里的题目数会按真实清单收缩</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// ---------------- 示例数据：3 本书 / 7 个章节 ----------------
+const TYPE_LABEL = { single: '单选', multi: '多选', judge: '判断', text: '问答' };
+const TYPES = ['single', 'multi', 'judge', 'text'];
+const STATES = [
+  { key: 'any', label: '全部题目' },
+  { key: 'wrong', label: '曾做错过' },
+  { key: 'marked', label: '已标记' }
+];
+const PRESETS = [10, 20, 30, 50];
+
+function makeQuestions(n, seed) {
+  const out = [];
+  for (let i = 1; i <= n; i++) {
+    const r = (i * 7 + seed) % 10;
+    const type = r < 6 ? 'single' : r < 8 ? 'multi' : r === 8 ? 'judge' : 'text';
+    out.push({ no: String(i), type });
+  }
+  return out;
+}
+
+const BOOKS = [
+  { book: '行测·言语理解', chapters: [
+    { id: 'A1', name: '第一章 逻辑填空', questions: makeQuestions(24, 1) },
+    { id: 'A2', name: '第二章 片段阅读', questions: makeQuestions(18, 2) },
+    { id: 'A3', name: '第三章 语句排序', questions: makeQuestions(12, 3) }
+  ]},
+  { book: '行测·数量关系', chapters: [
+    { id: 'B1', name: '第一章 计算问题', questions: makeQuestions(16, 4) },
+    { id: 'B2', name: '第二章 行程问题', questions: makeQuestions(14, 5) }
+  ]},
+  { book: '行测·判断推理', chapters: [
+    { id: 'C1', name: '第一章 图形推理', questions: makeQuestions(20, 6) },
+    { id: 'C2', name: '第二章 逻辑判断', questions: makeQuestions(22, 7) }
+  ]}
+];
+
+// 模拟持久化清单：错题本与标记（题号按题库分别存）
+const WRONG = { A1: ['3', '9', '15'], B1: ['2', '11'], C2: ['5', '6', '7', '8'] };
+const MARKED = { A2: ['4', '10'], C1: ['1', '13', '14'] };
+
+const ALL_CHAPTERS = [];
+BOOKS.forEach(b => b.chapters.forEach(c => ALL_CHAPTERS.push(c)));
+const GRAND_TOTAL = ALL_CHAPTERS.reduce((a, c) => a + c.questions.length, 0);
+
+// ---------------- 状态 ----------------
+const S = { scopeAll: true, setIds: [], types: [], state: 'any', count: 20 };
+let lastUids = [];
+
+// ---------------- 联动核心：一次遍历算出所有计数 ----------------
+function survey() {
+  const byType = { single: 0, multi: 0, judge: 0, text: 0 };
+  const byState = { any: 0, wrong: 0, marked: 0 };
+  const pool = [];
+  let total = 0;
+
+  ALL_CHAPTERS.forEach(c => {
+    if (!S.scopeAll && S.setIds.indexOf(c.id) < 0) return;
+    const wset = (WRONG[c.id] || []);
+    const mset = (MARKED[c.id] || []);
+    c.questions.forEach(q => {
+      const isWrong = wset.indexOf(q.no) >= 0;
+      const isMarked = mset.indexOf(q.no) >= 0;
+      total++;
+      const okType = !S.types.length || S.types.indexOf(q.type) >= 0;
+      const okState = S.state === 'any' || (S.state === 'wrong' ? isWrong : isMarked);
+      if (okState) byType[q.type]++;
+      if (okType) {
+        byState.any++;
+        if (isWrong) byState.wrong++;
+        if (isMarked) byState.marked++;
+      }
+      if (okType && okState) pool.push({ sid: c.id, no: q.no, type: q.type, chapter: c.name });
+    });
+  });
+  return { total, byType, byState, pool };
+}
+
+function describe() {
+  const picked = S.scopeAll ? 0 : S.setIds.length;
+  const parts = [(!picked || picked === ALL_CHAPTERS.length) ? '全部章节' : picked + '/' + ALL_CHAPTERS.length + ' 个章节'];
+  parts.push(S.types.length ? S.types.map(t => TYPE_LABEL[t]).join('/') : '全部题型');
+  parts.push((STATES.filter(s => s.key === S.state)[0] || {}).label);
+  return parts.join(' · ');
+}
+
+// 洗牌后取前 N：一次洗牌同时完成「随机抽取」与「随机排序」
+function draw(pool, count) {
+  const a = pool.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a.slice(0, Math.min(count, a.length));
+}
+
+// ---------------- 渲染 ----------------
+function render() {
+  const s = survey();
+  const max = s.pool.length;
+
+  // 题量夹紧
+  let warn = '';
+  if (!max) {
+    S.count = 0;
+    warn = (!S.scopeAll && !S.setIds.length)
+      ? '还没有勾选任何章节，请在上面选择要练习的范围'
+      : '当前范围内没有符合条件的题目，请放宽上面的条件';
+  } else {
+    if (S.count > max) {
+      warn = '当前范围只有 ' + max + ' 题，本次将抽 ' + max + ' 题';
+      S.count = max;
+    }
+    if (S.count < 1) S.count = Math.min(20, max);
+  }
+
+  document.getElementById('sumCount').textContent = S.count + ' 题';
+  document.getElementById('sumScope').textContent = describe();
+  document.getElementById('sumLine').innerHTML = max
+    ? '范围内共 <b>' + max + '</b> 题 · 本次随机抽取 <b>' + S.count + '</b> 题'
+      + (s.total > max ? '（该范围共 ' + s.total + ' 题）' : '')
+    : '';
+  document.getElementById('sumWarn').textContent = warn;
+
+  document.getElementById('sw').className = 'sw' + (S.scopeAll ? ' on' : '');
+  document.getElementById('grandTotal').textContent = '共 ' + GRAND_TOTAL + ' 题';
+  document.getElementById('scopeHint').textContent = S.scopeAll
+    ? '全部章节'
+    : '已选 ' + S.setIds.length + '/' + ALL_CHAPTERS.length + ' 个章节';
+  document.getElementById('bookBox').style.display = S.scopeAll ? 'none' : 'block';
+
+  document.getElementById('books').innerHTML = BOOKS.map(b => {
+    const picked = b.chapters.filter(c => S.scopeAll || S.setIds.indexOf(c.id) >= 0).length;
+    const allIn = picked === b.chapters.length;
+    const chips = b.chapters.map(c => {
+      const on = S.scopeAll || S.setIds.indexOf(c.id) >= 0;
+      return '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleSet(\'' + c.id + '\')">'
+        + c.name + '<span class="n">' + c.questions.length + '</span></span>';
+    }).join('');
+    return '<div class="book"><div class="book-head" onclick="toggleBook(\'' + b.book + '\')">'
+      + '<span class="book-name">' + b.book + '</span>'
+      + '<span class="tag" style="' + (allIn ? '' : 'background:#F0F2F7;color:#6C7384') + '">'
+      + picked + '/' + b.chapters.length + ' 章节</span></div>'
+      + '<div class="chips">' + chips + '</div></div>';
+  }).join('');
+
+  document.getElementById('typeChips').innerHTML = TYPES.map(t => {
+    const on = S.types.indexOf(t) >= 0;
+    return '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleType(\'' + t + '\')">'
+      + TYPE_LABEL[t] + '<span class="n">' + s.byType[t] + '</span></span>';
+  }).join('');
+  document.getElementById('typeHint').textContent = S.types.length ? '已选 ' + S.types.length + ' 种' : '不限';
+
+  document.getElementById('stateChips').innerHTML = STATES.map(st => {
+    const on = S.state === st.key;
+    return '<span class="chip' + (on ? ' on' : '') + '" onclick="toggleState(\'' + st.key + '\')">'
+      + st.label + '<span class="n">' + s.byState[st.key] + '</span></span>';
+  }).join('');
+
+  document.getElementById('maxHint').textContent = '最多 ' + max + ' 题';
+  document.getElementById('presets').innerHTML = PRESETS.map(n =>
+    '<span class="chip' + (S.count === n ? ' on' : '') + '" onclick="setCount(' + n + ')">' + n + ' 题</span>'
+  ).join('') + '<span class="chip' + (max && S.count === max ? ' on' : '') + '" onclick="setCount(' + max + ')">全部 ' + max + ' 题</span>';
+
+  document.getElementById('countInput').textContent = S.count;
+
+  const btn = document.getElementById('startBtn');
+  btn.disabled = !max;
+  btn.textContent = max ? '开始练习（抽 ' + S.count + ' 题）' : '当前范围没有题目';
+}
+
+// ---------------- 交互 ----------------
+function toggleScopeAll() {
+  if (S.scopeAll) {
+    S.scopeAll = false;
+    S.setIds = ALL_CHAPTERS.map(c => c.id);   // 切手动时默认全勾，用户做减法
+  } else {
+    S.scopeAll = true;
+    S.setIds = [];
+  }
+  render();
+}
+function toggleSet(id) {
+  const i = S.setIds.indexOf(id);
+  if (i >= 0) S.setIds.splice(i, 1); else S.setIds.push(id);
+  S.scopeAll = false;
+  render();
+}
+function toggleBook(book) {
+  const ids = (BOOKS.filter(b => b.book === book)[0] || { chapters: [] }).chapters.map(c => c.id);
+  const allIn = ids.every(id => S.setIds.indexOf(id) >= 0);
+  if (allIn) S.setIds = S.setIds.filter(id => ids.indexOf(id) < 0);
+  else ids.forEach(id => { if (S.setIds.indexOf(id) < 0) S.setIds.push(id); });
+  S.scopeAll = false;
+  render();
+}
+function toggleType(t) {
+  const i = S.types.indexOf(t);
+  if (i >= 0) S.types.splice(i, 1); else S.types.push(t);
+  S.types.sort((a, b) => TYPES.indexOf(a) - TYPES.indexOf(b));
+  render();
+}
+function toggleState(k) { S.state = k; render(); }
+function setCount(n) { S.count = n; render(); }
+function stepCount(d) { S.count = Math.max(1, S.count + d); render(); }
+
+function start() {
+  const s = survey();
+  if (!s.pool.length) return;
+  const picked = draw(s.pool, S.count);
+  lastUids = picked.map(p => p.sid + '::' + p.no);
+
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('resultOrder').textContent = '呈现顺序：' + picked.map(p => p.sid + p.no).slice(0, 6).join(' → ')
+    + (picked.length > 6 ? ' …' : '');
+  document.getElementById('resultList').innerHTML = picked.map((p, i) =>
+    '<div class="qcell ' + p.type + '" title="' + p.chapter + ' 第 ' + p.no + ' 题">' + (i + 1) + '</div>'
+  ).join('');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+render();
+</script>
+</body>
+</html>
