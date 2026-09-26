@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "刷题中",
+  "disableScroll": true,
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "errata-sheet": "/components/errata-sheet/index",
+    "answer-sheet": "/components/answer-sheet/index"
+  }
+}

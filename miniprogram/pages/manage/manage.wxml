@@ -1,0 +1,68 @@
+<view class="page manage">
+  <!-- 概览 + 搜索 -->
+  <view class="card">
+    <view class="between">
+      <view class="row">
+        <text class="title-md">题库管理</text>
+        <text class="tag tag-gray ml8">{{total}} 个 · {{totalQuestions}} 题</text>
+      </view>
+      <text class="mg-link" bindtap="toggleManage">{{manage ? '完成' : '批量管理'}}</text>
+    </view>
+    <view class="search-row mt16">
+      <input class="mg-search" value="{{keyword}}" bindinput="onSearch" placeholder="搜索书名或章节"
+        confirm-type="search" />
+      <text class="mg-clear" wx:if="{{keyword}}" bindtap="clearSearch">清除</text>
+    </view>
+    <view class="weak mt8" wx:if="{{manage}}">
+      已选 {{selectedCount}} 个题库 · {{selectedQuestions}} 题
+    </view>
+  </view>
+
+  <view class="card empty" wx:if="{{loading}}">
+    <view class="empty-title">正在统计…</view>
+  </view>
+  <view class="card empty" wx:elif="{{!books.length}}">
+    <view class="empty-title">{{keyword ? '没有匹配的题库' : '还没有题库'}}</view>
+    <view class="empty-desc">{{keyword ? '换个关键词试试' : '先去「新建题库」生成一份'}}</view>
+  </view>
+
+  <block wx:else>
+    <view class="card book-card" wx:for="{{books}}" wx:key="book" wx:for-item="bk">
+      <view class="between book-head" bindtap="toggleBook" data-book="{{bk.book}}">
+        <view class="row" style="flex:1;min-width:0;">
+          <view class="cb {{bk.allChecked ? 'cb-on' : ''}}" wx:if="{{manage}}"></view>
+          <text class="book-name ellipsis">{{bk.book}}</text>
+        </view>
+        <text class="weak">{{bk.chapters.length}} 章 · {{bk.count}} 题 · {{bk.progress}}%</text>
+      </view>
+
+      <view class="ch-row" wx:for="{{bk.chapters}}" wx:key="setId" wx:for-item="c"
+        bindtap="openSet" data-id="{{c.setId}}" hover-class="ch-row-hover">
+        <view class="cb {{c.checked ? 'cb-on' : ''}}" wx:if="{{manage}}"></view>
+        <view class="ch-main">
+          <view class="row">
+            <text class="ch-name ellipsis">{{c.chapter}}</text>
+            <text class="tag tag-orange ml8" wx:if="{{!c.hasAnswer}}">无答案</text>
+            <text class="tag tag-orange ml8" wx:elif="{{c.unmatched}}">{{c.unmatched}} 题缺答案</text>
+          </view>
+          <view class="row mt8">
+            <text class="weak">{{c.count}} 题 · 已答 {{c.done}}（{{c.progress}}%）</text>
+            <text class="tag tag-red ml8" wx:if="{{c.wrong}}">错题 {{c.wrong}}</text>
+            <text class="tag tag-green ml8" wx:if="{{c.marked}}">标记 {{c.marked}}</text>
+          </view>
+        </view>
+        <text class="ch-arrow" wx:if="{{!manage}}">›</text>
+      </view>
+    </view>
+  </block>
+
+  <view class="mg-space" wx:if="{{manage}}"></view>
+
+  <!-- 批量操作栏 -->
+  <view class="footer-bar" wx:if="{{manage}}">
+    <button class="btn btn-plain" bindtap="selectAll">全选</button>
+    <button class="btn btn-plain" bindtap="clearAll">清空</button>
+    <button class="btn btn-ghost" bindtap="batchExport">导出{{selectedCount ? '（' + selectedCount + '）' : ''}}</button>
+    <button class="btn btn-danger-ghost" bindtap="batchDelete">删除{{selectedCount ? '（' + selectedCount + '）' : ''}}</button>
+  </view>
+</view>

@@ -1,0 +1,143 @@
+<view class="page custom">
+  <!-- 当前选择：范围与题量始终摆在最上面 -->
+  <view class="card summary-card">
+    <view class="between">
+      <text class="title-md">当前设定</text>
+      <text class="tag tag-brand">{{count}} 题</text>
+    </view>
+    <view class="summary-scope mt8">{{scopeText}}</view>
+    <view class="summary-line mt8" wx:if="{{poolTotal}}">
+      范围内共 <text class="hl">{{poolTotal}}</text> 题 · 本次随机抽取 <text class="hl">{{count}}</text> 题
+      <text wx:if="{{totalInScope > poolTotal}}">（该范围共 {{totalInScope}} 题）</text>
+    </view>
+    <view class="summary-warn mt8" wx:if="{{warn}}">{{warn}}</view>
+  </view>
+
+  <view class="card" wx:if="{{loading}}">
+    <view class="weak">正在统计题库…</view>
+  </view>
+
+  <view class="card empty" wx:elif="{{!books.length}}">
+    <view class="empty-title">还没有题库</view>
+    <view class="empty-desc">先生成一个题库，再来按范围抽题练习</view>
+    <button class="btn btn-ghost mt24" bindtap="goHome">去生成题库</button>
+  </view>
+
+  <block wx:else>
+    <!-- ① 范围：章节 -->
+    <view class="card">
+      <view class="between">
+        <text class="title-md">① 题目范围</text>
+        <text class="weak">{{scopeAll ? '全部章节' : '已选 ' + pickedCount + '/' + setTotal + ' 个章节'}}</text>
+      </view>
+
+      <view class="switch-row mt16" bindtap="toggleScopeAll" hover-class="switch-hover">
+        <view class="sw {{scopeAll ? 'sw-on' : ''}}"><view class="sw-dot"></view></view>
+        <text class="sw-label">全部题库与章节</text>
+        <view class="flex1"></view>
+        <text class="weak">共 {{grandTotal}} 题</text>
+      </view>
+
+      <block wx:if="{{!scopeAll}}">
+        <view class="divider"></view>
+        <view class="weak mb16">点整本书可全选 / 全不选，点单个章节可逐个增减</view>
+        <view class="book-block" wx:for="{{books}}" wx:key="book" wx:for-item="bk">
+          <view class="between book-head" bindtap="toggleBook" data-book="{{bk.book}}">
+            <text class="book-name ellipsis flex1">{{bk.book}}</text>
+            <text class="tag {{bk.allChecked ? 'tag-brand' : 'tag-gray'}}">{{bk.picked}}/{{bk.chapters.length}} 章节</text>
+          </view>
+          <view class="chips mt8">
+            <view class="chip {{c.checked ? 'chip-on' : ''}}" wx:for="{{bk.chapters}}" wx:key="setId" wx:for-item="c"
+              bindtap="toggleSet" data-id="{{c.setId}}">
+              <text class="chip-label">{{c.chapter}}</text>
+              <text class="chip-n">{{c.count}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- ② 题型 -->
+    <view class="card">
+      <view class="between">
+        <text class="title-md">② 题型</text>
+        <text class="weak">可多选 · 不选＝不限</text>
+      </view>
+      <view class="chips mt16">
+        <view class="chip chip-lg {{c.on ? 'chip-on' : ''}} {{c.empty ? 'chip-off' : ''}}" wx:for="{{typeChips}}" wx:key="key"
+          wx:for-item="c" bindtap="toggleType" data-k="{{c.key}}">
+          <view class="chip-main">
+            <text class="chip-tick" wx:if="{{c.on}}">✓</text>
+            <text class="chip-label">{{c.label}}</text>
+            <text class="chip-n">{{c.count}}</text>
+          </view>
+          <text class="chip-sub">{{c.sub}}</text>
+        </view>
+      </view>
+      <view class="card-note mt8">数字 = 这类题在当前范围里的数量；灰掉表示范围里没有，点了会提示</view>
+      <view class="weak mt8" wx:if="{{!typeChips[0].count && !typeChips[1].count && !typeChips[2].count && !typeChips[3].count}}">
+        该范围内暂无题目
+      </view>
+    </view>
+
+    <!-- ③ 练习状态 -->
+    <view class="card">
+      <view class="between">
+        <text class="title-md">③ 练习状态</text>
+        <text class="weak">三选一 · 决定从哪些题里抽</text>
+      </view>
+      <view class="chips mt16">
+        <view class="chip chip-lg {{c.on ? 'chip-on' : ''}} {{c.empty ? 'chip-off' : ''}}" wx:for="{{stateChips}}" wx:key="key"
+          wx:for-item="c" bindtap="toggleState" data-k="{{c.key}}">
+          <view class="chip-main">
+            <text class="chip-tick" wx:if="{{c.on}}">✓</text>
+            <text class="chip-label">{{c.label}}</text>
+            <text class="chip-n">{{c.count}}</text>
+          </view>
+          <text class="chip-sub">{{c.sub}}</text>
+        </view>
+      </view>
+      <view class="card-note mt8">「曾做错过」来自错题本，「已标记」是答题时点过标记的题；数字是该状态下的题数</view>
+    </view>
+
+    <!-- ④ 题量 -->
+    <view class="card">
+      <view class="between">
+        <text class="title-md">④ 本次题量</text>
+        <text class="weak">范围里共 {{poolTotal}} 题</text>
+      </view>
+      <view class="chips mt16">
+        <view class="chip chip-lg {{count === p.n ? 'chip-on' : ''}} {{p.off ? 'chip-off' : ''}}" wx:for="{{presets}}" wx:key="n"
+          wx:for-item="p" bindtap="pickPreset" data-n="{{p.n}}">
+          <view class="chip-main">
+            <text class="chip-tick" wx:if="{{count === p.n}}">✓</text>
+            <text class="chip-label">{{p.n}} 题</text>
+          </view>
+          <text class="chip-sub">{{p.off ? '超过范围题数' : p.sub}}</text>
+        </view>
+        <view class="chip chip-lg {{countIsAll ? 'chip-on' : ''}}" bindtap="pickAll">
+          <view class="chip-main">
+            <text class="chip-tick" wx:if="{{countIsAll}}">✓</text>
+            <text class="chip-label">全部 {{poolTotal}} 题</text>
+          </view>
+          <text class="chip-sub">范围里的都抽</text>
+        </view>
+      </view>
+
+      <view class="stepper mt16">
+        <view class="step-btn" bindtap="stepCount" data-d="-5" hover-class="step-hover">−</view>
+        <input class="step-input" type="number" value="{{count}}" bindinput="onCountInput" bindblur="onCountBlur" />
+        <view class="step-btn" bindtap="stepCount" data-d="5" hover-class="step-hover">＋</view>
+      </view>
+
+      <view class="card-note mt8">
+        这里选的是这次要练几道（当前 {{countText}}）：从范围里随机抽这么多题。灰掉的预设超过范围题数，点了会提示。
+      </view>
+    </view>
+  </block>
+
+  <view class="foot-space" wx:if="{{books.length && !loading}}"></view>
+  <view class="footer-bar" wx:if="{{books.length && !loading}}">
+    <button class="btn btn-primary" bindtap="start">{{canStart ? '开始练习（抽 ' + count + ' 题）' : '当前范围没有题目'}}</button>
+  </view>
+</view>

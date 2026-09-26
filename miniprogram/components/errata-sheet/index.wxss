@@ -1,0 +1,163 @@
+/* 校对面板（组件样式自包含，不依赖 app.wxss 全局类） */
+.er-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 34, 0.45);
+  z-index: 200;
+}
+.er-sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #fff;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 24rpx 24rpx calc(20rpx + env(safe-area-inset-bottom));
+  z-index: 201;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  /* 面板自己也是最后一道闸：万一还有东西没被正文区裁掉，也不许它画到面板外面去 */
+  overflow: hidden;
+}
+.er-handle {
+  width: 72rpx; height: 8rpx;
+  background: #E4E8F0;
+  border-radius: 8rpx;
+  margin: 0 auto 20rpx;
+  flex-shrink: 0;
+}
+.er-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.er-title { font-size: 32rpx; font-weight: 600; color: #1E2433; }
+.er-close { font-size: 26rpx; color: #9AA1B2; padding: 0 8rpx; }
+.er-sub { font-size: 24rpx; color: #9AA1B2; line-height: 1.6; margin-top: 8rpx; flex-shrink: 0; }
+
+/* 上次记下的修正与题库现值不一致时的提示条（写回失败的痕迹，别让它悄悄藏着） */
+.er-stale {
+  margin-top: 10rpx;
+  padding: 12rpx 16rpx;
+  background: #FCF1E0;
+  color: #8A6520;
+  border-radius: 12rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  word-break: break-all;
+  flex-shrink: 0;
+}
+
+/* 正文区：高度由 js 算好写在 style 上（px），同时 flex:none 免得被 flex-grow 改写。
+   js 还没算出来时（bodyH=0）退回 flex:1 + min-height:0 的常规写法兜底。 */
+.er-body { flex: 1; min-height: 0; margin-top: 8rpx; }
+.er-inner { display: block; }
+
+.er-label {
+  font-size: 24rpx;
+  color: #6C7384;
+  margin: 22rpx 0 12rpx;
+}
+.er-chips { display: flex; flex-wrap: wrap; gap: 14rpx; }
+.er-chip {
+  padding: 10rpx 22rpx;
+  border-radius: 30rpx;
+  background: #F4F6FB;
+  color: #6C7384;
+  font-size: 25rpx;
+  border: 1rpx solid #ECEFF5;
+}
+.er-chip-on {
+  background: #EAF0FE;
+  color: #3E6BF0;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.er-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 22rpx 0 12rpx;
+}
+.er-field-head .er-label { margin: 0; }
+.er-view-go { font-size: 24rpx; color: #3E6BF0; }
+
+/* 只读框：普通 view / scroll-view（普通组件或滚动容器），**不是原生组件**，
+   所以再长也只在框内滚动（滚轮）或按内容走，绝不会画到面板外面压住底部按钮。
+   高度由 js 按内容行数算好（boxOf），超过上限才换成 scroll-view 走框内滚动。 */
+.er-view {
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
+  padding: 18rpx 20rpx;
+  background: #F8FAFF;
+  border: 1rpx solid #ECEFF5;
+  border-radius: 14rpx;
+  font-size: 27rpx;
+  line-height: 1.6;
+  color: #1E2433;
+}
+.er-view-t { display: block; word-break: break-all; }
+.er-view-ph .er-view-t { color: #A8AEBC; }
+
+/* 编辑态：正文区整体让给唯一的一个输入框。
+   面板这时要有一个**确定的高度**，否则 flex:1 的正文区在 auto 高度的面板里落不下来，
+   textarea 的 height:100% 也就无从算起（表现是输入框只有默认那点高）。 */
+.er-sheet-edit { height: 86vh; }
+.er-edit {
+  flex: 1;
+  min-height: 0;
+  margin-top: 8rpx;
+  overflow: hidden;
+}
+
+/* 输入框：**不要 auto-height**，高度由 .er-edit 决定。
+   auto-height 会让它按内容长到上千 rpx，画到面板底部压住按钮（真机必现，开发者工具看不出）。 */
+.er-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  height: 100%;
+  padding: 18rpx 20rpx;
+  background: #F8FAFF;
+  border: 1rpx solid #ECEFF5;
+  border-radius: 14rpx;
+  font-size: 27rpx;
+  line-height: 1.6;
+  color: #1E2433;
+}
+.er-hint {
+  margin-top: 22rpx;
+  padding: 16rpx 20rpx;
+  background: #F4F6FB;
+  border-radius: 14rpx;
+  font-size: 24rpx;
+  color: #9AA1B2;
+}
+
+/* 底部按钮区：白底 + 抬到内容之上。
+   正文区高度已经算死了，这里是第二道保险 —— 即便哪天正文又漏出来，
+   也只会被这块白底盖住，不会出现"按钮被压住点不到"。 */
+.er-foot {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  display: flex;
+  gap: 16rpx;
+  padding-top: 20rpx;
+  flex-shrink: 0;
+}
+.er-btn {
+  flex: 1;
+  height: 84rpx;
+  border-radius: 16rpx;
+  font-size: 29rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.er-btn-primary { background: #3E6BF0; color: #fff; flex: 1.6; }
+.er-btn-ghost { background: #EAF0FE; color: #3E6BF0; }
+.er-btn-plain { background: #fff; color: #6C7384; border: 1rpx solid #ECEFF5; max-width: 160rpx; }

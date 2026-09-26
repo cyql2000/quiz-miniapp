@@ -1,0 +1,278 @@
+.quiz-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* 顶栏 */
+.top {
+  background: #fff;
+  padding: 20rpx 24rpx 16rpx;
+  border-bottom: 1rpx solid var(--line);
+  flex-shrink: 0;
+}
+.top-btn {
+  font-size: 24rpx;
+  color: var(--text-sub);
+  margin-left: 26rpx;
+}
+.top-btn-on { color: var(--warn); font-weight: 600; }
+.progress-track {
+  height: 10rpx;
+  background: #EDF1F8;
+  border-radius: 10rpx;
+  overflow: hidden;
+  margin-top: 16rpx;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6F94F8, var(--brand));
+  border-radius: 10rpx;
+  transition: width 0.3s;
+}
+
+/* 题目区 */
+.body { flex: 1; min-height: 0; }
+.q-card {
+  margin: 20rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(30, 36, 51, 0.04);
+}
+.q-no {
+  font-size: 34rpx;
+  font-weight: 700;
+  margin-right: 16rpx;
+}
+.q-stem {
+  /* text 组件默认 inline；这里要的是整块题干，靠 display:block 保住原 view 的排版 */
+  display: block;
+  font-size: 32rpx;
+  line-height: 1.75;
+  color: var(--text);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+/* 错题本历史条 */
+.wb-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  margin-top: 16rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  background: #FDF4F4;
+}
+.wb-text { font-size: 22rpx; color: var(--text-weak); }
+
+/* 纠错入口 */
+.fix-btn {
+  font-size: 23rpx;
+  color: var(--text-weak);
+  padding: 4rpx 16rpx;
+  border-radius: 10rpx;
+  background: #F4F6FB;
+  flex-shrink: 0;
+}
+.fix-btn-on { color: var(--brand); background: var(--brand-light); font-weight: 600; }
+
+/* 选项 */
+.opt {
+  display: flex;
+  align-items: flex-start;
+  border: 2rpx solid var(--line);
+  border-radius: 16rpx;
+  padding: 22rpx 20rpx;
+  margin-bottom: 18rpx;
+  background: #fff;
+  transition: all 0.15s;
+}
+.opt-hover { background: #F5F8FF; }
+.opt-key {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  background: #F0F2F7;
+  color: var(--text-sub);
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 18rpx;
+  flex-shrink: 0;
+}
+.opt-text { flex: 1; font-size: 30rpx; line-height: 1.6; word-break: break-all; white-space: pre-wrap; }
+.opt-picked { border-color: var(--brand); background: #F3F7FF; }
+.opt-picked .opt-key { background: var(--brand); color: #fff; }
+.opt-right { border-color: var(--success); background: #EFFBF4; }
+.opt-right .opt-key { background: var(--success); color: #fff; }
+.opt-wrong { border-color: var(--danger); background: #FEF1F1; }
+.opt-wrong .opt-key { background: var(--danger); color: #fff; }
+
+/* 结果区 */
+.banner {
+  border-radius: 14rpx;
+  padding: 16rpx 20rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  margin-bottom: 18rpx;
+}
+.banner-ok { background: #E5F6EE; color: #0E8A4F; }
+.banner-bad { background: #FDECEC; color: #D93030; }
+.banner-mid { background: #FFF6E3; color: #B77A16; }
+.banner-master { background: #E5F6EE; color: #0E8A4F; }
+.banner-ico { font-weight: 700; margin-right: 8rpx; }
+
+.ans-box, .explain-box {
+  border-radius: 14rpx;
+  padding: 18rpx 20rpx;
+  margin-bottom: 14rpx;
+}
+.ans-box { background: #F3F7FF; border-left: 6rpx solid var(--brand); }
+.explain-box { background: #F7F9FC; border-left: 6rpx solid #C6D0E4; }
+.ans-title, .explain-title { font-size: 24rpx; color: var(--text-weak); margin-bottom: 8rpx; }
+/* 与 .q-stem 同理：为支持长按复制换成了 text，用 display:block 保住块级排版 */
+.ans-content { display: block; font-size: 30rpx; font-weight: 600; color: var(--brand); word-break: break-all; white-space: pre-wrap; }
+.explain-content { display: block; font-size: 28rpx; line-height: 1.7; color: var(--text-sub); word-break: break-all; white-space: pre-wrap; }
+
+.reveal-tip {
+  background: #F0F2F7;
+  border-radius: 14rpx;
+  padding: 16rpx 20rpx;
+  font-size: 26rpx;
+  color: var(--text-sub);
+}
+
+/* 底部 */
+.foot {
+  background: #fff;
+  border-top: 1rpx solid var(--line);
+  padding: 16rpx 24rpx calc(12rpx + env(safe-area-inset-bottom));
+  flex-shrink: 0;
+}
+.foot-main { display: flex; gap: 20rpx; margin-bottom: 14rpx; }
+.foot-main .btn { flex: 1; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.foot-nav { display: flex; gap: 16rpx; }
+.nav-btn {
+  flex: 1;
+  height: 72rpx;
+  border-radius: 14rpx;
+  background: #F5F7FB;
+  color: var(--text-sub);
+  font-size: 28rpx;
+  line-height: 72rpx;
+  padding: 0;
+  border: 1rpx solid var(--line);
+}
+.nav-btn::after { border: none; }
+.nav-btn[disabled] { color: #C6CCD9; background: #F5F7FB; }
+.nav-next { background: var(--brand-light); color: var(--brand); border-color: transparent; font-weight: 600; }
+
+/* 答题卡 */
+.sheet-card { padding-bottom: calc(24rpx + env(safe-area-inset-bottom)); }
+.legend { gap: 14rpx; }
+.lg {
+  display: inline-flex;
+  align-items: center;
+  font-size: 22rpx;
+  color: var(--text-sub);
+}
+.lg::before {
+  content: '';
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 6rpx;
+  margin-right: 6rpx;
+}
+.lg-right::before { background: var(--success); }
+.lg-wrong::before { background: var(--danger); }
+.lg-done::before { background: #DDE6FB; }
+.lg-cur::before { background: #fff; border: 3rpx solid var(--brand); box-sizing: border-box; }
+.lg-blank::before { background: #F0F2F7; }
+
+.card-scroll { max-height: 50vh; margin-top: 20rpx; }
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+.cell {
+  position: relative;
+  width: 84rpx;
+  height: 84rpx;
+  border-radius: 16rpx;
+  background: #F0F2F7;
+  color: var(--text-sub);
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cell.g-right { background: var(--success); color: #fff; }
+.cell.g-wrong { background: var(--danger); color: #fff; }
+.cell.g-done { background: #DDE6FB; color: var(--brand); }
+.cell.g-cur { background: #fff; border: 4rpx solid var(--brand); color: var(--brand); font-weight: 700; box-sizing: border-box; }
+
+/* 标记角标：独立于 cls，这样「当前题」也不会盖掉标记提示 */
+.cell-mk {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  background: var(--warn);
+  border: 3rpx solid #fff;
+  box-sizing: border-box;
+}
+.lg-marked::before { background: var(--warn); }
+.sheet-foot { display: flex; flex-direction: column; margin-top: 20rpx; }
+.sheet-foot .between { display: flex; align-items: center; justify-content: space-between; }
+
+/* 答题卡「跳到第 N 题」：想从中间某题开始练时不必逐页翻 */
+.jump-row { display: flex; align-items: center; }
+.jump-row .weak { margin-right: 10rpx; }
+.jump-row .btn { margin-left: 12rpx; }
+.jump-input {
+  width: 130rpx;
+  height: 60rpx;
+  padding: 0 14rpx;
+  border: 1rpx solid var(--line);
+  border-radius: 10rpx;
+  background: #FFFFFF;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+/* 无标准答案提示条：把「补答案」入口摆在题卡里显眼的位置 */
+.nokey-bar {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 12rpx;
+  background: #FCF1E0;
+}
+.nokey-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 24rpx;
+  color: #8A6520;
+}
+.nokey-btn {
+  flex: none;
+  margin-left: 16rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 10rpx;
+  background: var(--warn);
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+}

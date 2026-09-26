@@ -1,0 +1,99 @@
+/* 题库管理页 */
+.mg-link {
+  color: var(--brand);
+  font-size: 26rpx;
+  padding: 6rpx 4rpx;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+}
+.mg-search {
+  flex: 1;
+  min-width: 0;
+  height: 72rpx;
+  padding: 0 20rpx;
+  border-radius: 14rpx;
+  background: #F8FAFF;
+  border: 1rpx solid var(--line);
+  font-size: 27rpx;
+}
+.mg-clear {
+  flex: none;
+  margin-left: 16rpx;
+  color: var(--text-weak);
+  font-size: 25rpx;
+}
+
+/* 按书分组 */
+.book-card {
+  padding: 20rpx 24rpx 8rpx;
+}
+.book-head {
+  padding-bottom: 14rpx;
+  border-bottom: 1rpx solid var(--line);
+}
+.book-name {
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.ch-row {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #F4F6FB;
+}
+.ch-row:last-child {
+  border-bottom: none;
+}
+.ch-row-hover {
+  background: #FAFBFE;
+}
+.ch-main {
+  flex: 1;
+  min-width: 0;
+}
+.ch-name {
+  font-size: 27rpx;
+  max-width: 380rpx;
+}
+.ch-arrow {
+  flex: none;
+  margin-left: 12rpx;
+  color: var(--text-weak);
+  font-size: 32rpx;
+}
+
+/* 勾选框 */
+.cb {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+  margin-right: 16rpx;
+  border-radius: 50%;
+  border: 2rpx solid #CFD6E4;
+  background: #fff;
+}
+.cb-on {
+  border-color: var(--brand);
+  background: var(--brand);
+  position: relative;
+}
+.cb-on::after {
+  content: '';
+  position: absolute;
+  left: 13rpx;
+  top: 6rpx;
+  width: 10rpx;
+  height: 18rpx;
+  border-right: 3rpx solid #fff;
+  border-bottom: 3rpx solid #fff;
+  transform: rotate(45deg);
+}
+
+/* 给底部批量操作栏留空间 */
+.mg-space {
+  height: 150rpx;
+}

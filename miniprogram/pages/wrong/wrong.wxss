@@ -1,0 +1,184 @@
+.wrong { padding-bottom: 60rpx; }
+.wrong.has-footer { padding-bottom: 180rpx; }
+
+.ml8 { margin-left: 8rpx; }
+
+/* 汇总 */
+.sum-card .dot {
+  width: 14rpx; height: 14rpx;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+.sum-row { display: flex; }
+.sum-item { flex: 1; text-align: center; }
+.sum-item + .sum-item { border-left: 1rpx solid var(--line); }
+.sum-num { font-size: 40rpx; font-weight: 700; line-height: 1.2; }
+.sum-num.red { color: var(--danger); }
+.sum-num.green { color: var(--success); }
+.sum-num.gray { color: var(--text-sub); }
+.sum-label { font-size: 22rpx; color: var(--text-weak); margin-top: 2rpx; }
+
+/* 题库筛选 */
+.chips { white-space: nowrap; margin-bottom: 20rpx; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 360rpx;
+  height: 60rpx;
+  padding: 0 22rpx;
+  margin-right: 14rpx;
+  border-radius: 30rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  font-size: 24rpx;
+  color: var(--text-sub);
+  vertical-align: middle;
+}
+.chip-text {
+  max-width: 260rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chip-on {
+  background: var(--brand-light);
+  border-color: transparent;
+  color: var(--brand);
+  font-weight: 600;
+}
+.chip-badge {
+  margin-left: 8rpx;
+  font-size: 20rpx;
+  padding: 0 8rpx;
+  border-radius: 8rpx;
+  background: #FDEBEB;
+  color: var(--danger);
+}
+.chip-on .chip-badge { background: #fff; }
+
+/* 视图切换 */
+.tabs {
+  display: flex;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(30, 36, 51, 0.04);
+}
+.tab {
+  flex: 1;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: var(--text-sub);
+  border-radius: 12rpx;
+}
+.tab-on {
+  background: var(--brand-light);
+  color: var(--brand);
+  font-weight: 600;
+}
+.tab-count {
+  margin-left: 6rpx;
+  font-size: 22rpx;
+  opacity: 0.8;
+}
+
+/* 空态 */
+.empty-box {
+  width: 120rpx; height: 120rpx;
+  margin: 0 auto;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, #FDEBEB, #FCF1E0);
+  position: relative;
+}
+.empty-box::before {
+  content: '';
+  position: absolute; left: 44rpx; top: 30rpx;
+  width: 32rpx; height: 32rpx;
+  border: 5rpx solid var(--danger);
+  border-radius: 50%;
+}
+.empty-box::after {
+  content: '';
+  position: absolute; left: 58rpx; top: 66rpx;
+  width: 5rpx; height: 22rpx;
+  background: var(--danger);
+  border-radius: 3rpx;
+}
+.empty .btn { margin-top: 24rpx; }
+
+/* 分组 */
+.group-head {
+  display: flex;
+  align-items: center;
+  margin: 8rpx 8rpx 16rpx;
+}
+.group-title { font-size: 30rpx; font-weight: 600; }
+.group-foot {
+  display: flex;
+  margin: 0 auto 24rpx;
+}
+
+/* 题目卡片 */
+.item { padding: 24rpx; }
+.item .q-no {
+  font-size: 32rpx;
+  font-weight: 700;
+  margin-right: 14rpx;
+}
+.item-meta { font-size: 22rpx; color: var(--text-weak); }
+.stem {
+  font-size: 29rpx;
+  line-height: 1.7;
+  color: var(--text);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.box-title { font-size: 22rpx; color: var(--text-weak); margin-bottom: 8rpx; }
+.ans-box, .explain-box, .mine-box {
+  border-radius: 14rpx;
+  padding: 16rpx 20rpx;
+}
+.ans-box { background: #F3F7FF; border-left: 6rpx solid var(--brand); }
+.explain-box { background: #F7F9FC; border-left: 6rpx solid #C6D0E4; }
+.ans-content {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--brand);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+.explain-content {
+  font-size: 27rpx;
+  line-height: 1.7;
+  color: var(--text-sub);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+.mine-box {
+  background: #FDF4F4;
+  font-size: 26rpx;
+  color: var(--text-sub);
+}
+.mine-box .mine { color: var(--danger); font-weight: 600; }
+
+/* 操作行 */
+.acts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  border-top: 1rpx solid var(--line);
+  padding-top: 18rpx;
+  gap: 24rpx;
+}
+.act { font-size: 25rpx; color: var(--text-sub); }
+.act-brand { color: var(--brand); font-weight: 600; }
+.act-ok { color: var(--success); }
+.act-plain { color: var(--warn); }
+.act-del { color: var(--text-weak); }

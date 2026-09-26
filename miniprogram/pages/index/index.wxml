@@ -1,0 +1,160 @@
+<view class="page index">
+  <!-- 头部 -->
+  <view class="hero">
+    <view class="title-lg">轻刷题</view>
+    <view class="sub">上传试题与答案解析，自动生成可随时刷题的题库</view>
+  </view>
+
+  <!-- 继续学习 -->
+  <view class="card continue-card" wx:if="{{continueCard}}" bindtap="goContinue" hover-class="card-hover">
+    <view class="between">
+      <view class="row">
+        <view class="dot"></view>
+        <text class="title-md ellipsis" style="max-width:420rpx;">{{continueCard.chapter || continueCard.title}}</text>
+      </view>
+      <text class="tag tag-brand">继续刷题</text>
+    </view>
+    <view class="mt16">
+      <view class="progress-track">
+        <view class="progress-fill" style="width:{{continueCard.progress}}%;"></view>
+      </view>
+      <view class="between mt8">
+        <text class="weak">{{continueCard.done}}/{{continueCard.total}} 已作答</text>
+        <text class="weak">{{continueCard.progress}}%</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快捷入口 -->
+  <view class="card">
+    <view class="title-md mb16">开始</view>
+    <view class="entry-grid entry-grid-4">
+      <view class="entry" bindtap="goGenerate" hover-class="entry-hover">
+        <view class="entry-icon" style="background:#EAF0FE;">
+          <view class="glyph glyph-add"></view>
+        </view>
+        <view class="entry-name">新建题库</view>
+      </view>
+      <view class="entry" bindtap="goWrongBook" data-id="" hover-class="entry-hover">
+        <view class="entry-icon" style="background:#FDEBEB;">
+          <view class="glyph glyph-wrong"></view>
+          <view class="entry-badge" wx:if="{{wb.pending}}">{{wb.pending}}</view>
+        </view>
+        <view class="entry-name">错题本</view>
+      </view>
+      <view class="entry" bindtap="goErrata" data-id="" hover-class="entry-hover">
+        <view class="entry-icon" style="background:#FFF4E5;">
+          <view class="glyph glyph-fix"></view>
+          <view class="entry-badge" wx:if="{{er.open}}">{{er.open}}</view>
+        </view>
+        <view class="entry-name">校对清单</view>
+      </view>
+      <view class="entry" bindtap="goFiles" hover-class="entry-hover">
+        <view class="entry-icon" style="background:#E5F6EE;">
+          <view class="glyph glyph-folder"></view>
+        </view>
+        <view class="entry-name">文件库</view>
+      </view>
+    </view>
+
+    <!-- 自定义练习：先限定范围与题量，再随机抽题 -->
+    <view class="custom-entry" bindtap="goCustom" hover-class="entry-hover">
+      <view class="flex1">
+        <view class="custom-entry-title">自定义练习</view>
+        <view class="weak">自选章节、题型与题量，随机抽题</view>
+      </view>
+      <text class="custom-entry-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 数据备份 -->
+  <view class="card">
+    <view class="between">
+      <view class="row">
+        <text class="title-md">数据备份</text>
+        <text class="tag tag-gray ml8">{{storage.sizeText}}</text>
+      </view>
+      <text class="weak">{{sets.length}} 套 · 错题 {{wb.total}} 条</text>
+    </view>
+    <view class="weak mt8">
+      题库与学习记录只存在本机，换手机或清理缓存会丢失。导出成一个 JSON 文件后，可转发到微信或存到电脑，随时导入还原。
+    </view>
+    <view class="backup-actions mt16">
+      <button class="btn btn-ghost" bindtap="exportAll" hover-class="btn-hover">导出全部</button>
+      <button class="btn btn-plain" bindtap="importBackup" hover-class="btn-hover">导入备份</button>
+    </view>
+  </view>
+
+  <!-- 我的题库 -->
+  <view class="section-title between">
+    <text class="title-md">我的题库</text>
+    <view class="row" wx:if="{{sets.length}}">
+      <text class="weak">共 {{sets.length}} 套</text>
+      <text class="mg-entry" bindtap="goManage">题库管理 ›</text>
+    </view>
+  </view>
+
+  <view class="empty card" wx:if="{{!loading && !sets.length}}">
+    <view class="empty-box"></view>
+    <view class="empty-title">还没有题库</view>
+    <view class="empty-desc">准备一份试题文件和答案解析文件，<text class="link" bindtap="goGenerate">立即生成</text></view>
+  </view>
+
+  <view class="set-card card" wx:for="{{setsShown}}" wx:key="setId" bindtap="openSheet" data-id="{{item.setId}}">
+    <view class="between">
+      <text class="title-md ellipsis flex1">{{item.chapter}}</text>
+      <text class="weak ml8">{{item.questionCount}}题</text>
+    </view>
+    <view class="weak ellipsis mt8" wx:if="{{item.book}}">{{item.book}}</view>
+    <view class="between mt16">
+      <view class="row">
+        <text class="tag tag-green" wx:if="{{item.matchedCount}}">解析匹配 {{item.matchedCount}}</text>
+        <text class="tag tag-orange ml8" wx:if="{{item.questionCount - item.matchedCount > 0}}">{{item.questionCount - item.matchedCount}}题无解析</text>
+        <text class="tag tag-red ml8" wx:if="{{item.wrongCount}}">错题 {{item.wrongCount}}</text>
+        <text class="tag tag-orange ml8" wx:if="{{item.markedCount}}">标记 {{item.markedCount}}</text>
+        <text class="tag tag-gray ml8" wx:if="{{!item.answerFile}}">未配答案解析</text>
+      </view>
+    </view>
+    <view class="between mt16">
+      <text class="weak">{{item.timeText}}</text>
+      <text class="weak">点击开始 ›</text>
+    </view>
+  </view>
+
+  <!-- 题库多时不在这里摊完，引导去管理页 -->
+  <view class="more-tip" wx:if="{{sets.length > setsShown.length}}" bindtap="goManage" hover-class="card-hover">
+    还有 {{sets.length - setsShown.length}} 个题库未展示 · 去「题库管理」查看全部 ›
+  </view>
+</view>
+
+<!-- 模式选择弹层 -->
+<view class="mask" wx:if="{{sheet.show}}" bindtap="closeSheet"></view>
+<view class="sheet" wx:if="{{sheet.show}}">
+  <view class="sheet-handle"></view>
+  <view class="sheet-title">{{sheet.title}}</view>
+  <view class="weak center" style="text-align:center;margin-top:4rpx;">共 {{sheet.total}} 题</view>
+  <view class="weak center" style="text-align:center;" wx:if="{{sheet.wrongCount || sheet.masteredCount}}">
+    错题本：待攻克 {{sheet.wrongCount}} · 易错 {{sheet.hardCount}} · 已掌握 {{sheet.masteredCount}}
+  </view>
+  <view class="mt24">
+    <button class="btn btn-primary mt16" wx:if="{{sheet.hasProgress}}" bindtap="chooseMode" data-mode="continue">继续上次练习（已完成 {{sheet.progress}}%）</button>
+    <button class="btn btn-ghost mt16" bindtap="chooseMode" data-mode="order">顺序练习</button>
+    <button class="btn btn-ghost mt16" bindtap="chooseMode" data-mode="random">随机练习</button>
+    <button class="btn btn-ghost mt16" bindtap="goCustom" data-id="{{sheet.setId}}">自定义练习（自选范围与题量）</button>
+    <button class="btn btn-ghost mt16" wx:if="{{sheet.wrongCount}}" bindtap="chooseMode" data-mode="wrong">
+      错题重练（{{sheet.wrongCount}} 题）
+    </button>
+    <button class="btn btn-danger-ghost mt16" wx:if="{{sheet.hardCount}}" bindtap="chooseMode" data-mode="hard">
+      易错题重练（{{sheet.hardCount}} 题）
+    </button>
+    <button class="btn btn-ghost mt16" wx:if="{{sheet.markedCount}}" bindtap="chooseMode" data-mode="marked">
+      标记题重练（{{sheet.markedCount}} 题）
+    </button>
+    <button class="btn btn-plain mt16" bindtap="chooseMode" data-mode="review">背题模式（直接看答案）</button>
+    <button class="btn btn-plain mt16" bindtap="goReview">{{sheet.stateLabel}}</button>
+    <button class="btn btn-plain mt16" bindtap="openWrongBook" data-id="{{sheet.setId}}">错题回顾{{sheet.wrongLabel}}</button>
+    <button class="btn btn-plain mt16" bindtap="exportOne" data-id="{{sheet.setId}}">导出该题库（含错题本与校对记录）</button>
+    <button class="btn btn-danger-ghost mt16" bindtap="deleteSet" data-id="{{sheet.setId}}">删除该题库</button>
+    <button class="btn btn-plain mt16" bindtap="closeSheet">取消</button>
+  </view>
+</view>

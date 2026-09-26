@@ -1,0 +1,54 @@
+<view class="page files">
+  <!-- 使用说明 -->
+  <view class="tip">
+    <view class="row">
+      <view class="tip-icon">i</view>
+      <text class="flex1">文件全部保存在本机（不经过云端）。导入时打开的是微信的「会话文件」选择器：手机版只能从聊天记录里选，请先把文件发给「文件传输助手」；电脑版微信的选择器可以用系统文件对话框浏览本机目录。</text>
+    </view>
+    <view class="weak mt8">已用 {{storage.sizeText}} · 文件 {{storage.fileCount}} 个 · 题库 {{storage.setCount}} 个（本机上限约 200MB）</view>
+  </view>
+
+  <!-- 筛选 -->
+  <view class="filters row">
+    <view class="filter {{filter==='all'?'on':''}}" bindtap="setFilter" data-f="all">全部</view>
+    <view class="filter {{filter==='question'?'on':''}}" bindtap="setFilter" data-f="question">试题文件</view>
+    <view class="filter {{filter==='answer'?'on':''}}" bindtap="setFilter" data-f="answer">答案解析</view>
+    <view class="filter {{filter==='none'?'on':''}}" bindtap="setFilter" data-f="none">未分类</view>
+  </view>
+
+  <view class="list" wx:if="{{list.length}}">
+    <view class="card file-card" wx:for="{{list}}" wx:key="_id">
+      <view class="file-ico {{item.ext==='pdf'?'pdf':''}} {{item.ext==='docx'||item.ext==='doc'?'doc':''}}">
+        <text>{{item.ext}}</text>
+      </view>
+      <view class="flex1 file-info">
+        <view class="ellipsis title-md">{{item.name}}</view>
+        <view class="mt8 weak row">
+          <text>{{item.sizeText}}</text>
+          <text class="dot-sep">·</text>
+          <text>{{item.timeText}}</text>
+        </view>
+        <view class="mt8 row">
+          <text class="tag {{item.role==='question'?'tag-brand':item.role==='answer'?'tag-green':'tag-gray'}}">{{item.roleLabel}}</text>
+          <text class="tag tag-green" style="margin-left:10rpx;" wx:if="{{item.parsable}}">本机已保存</text>
+          <text class="tag tag-orange" style="margin-left:10rpx;" wx:else>端上不可解析</text>
+        </view>
+      </view>
+      <view class="file-ops">
+        <view class="op" catchtap="changeRole" data-id="{{item._id}}" data-name="{{item.name}}">分类</view>
+        <view class="op op-danger" catchtap="deleteFile" data-id="{{item._id}}" data-name="{{item.name}}">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty card" wx:if="{{!loading && !list.length}}">
+    <view class="empty-title">{{filter==='all' ? '文件库为空' : '该分类下暂无文件'}}</view>
+    <view class="empty-desc">可直接解析：{{acceptText}}；每个文件最大 20MB</view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="footer-bar">
+    <button class="btn btn-primary" bindtap="chooseImport" hover-class="btn-hover">＋ 导入文件</button>
+    <button class="btn btn-ghost" bindtap="goGenerate" hover-class="btn-hover">去生成题库</button>
+  </view>
+</view>

@@ -1,0 +1,84 @@
+<view class="er-mask" wx:if="{{show}}" bindtap="close"></view>
+<!-- 面板自身 overflow:hidden + 底部按钮区白底置顶（见 wxss），
+     保证无论正文多长，按钮都不会被任何东西盖住。 -->
+<view class="er-sheet {{editing ? 'er-sheet-edit' : ''}}" wx:if="{{show}}" catchtap="noop">
+  <view class="er-handle"></view>
+  <view class="er-head">
+    <text class="er-title">校对 · 第 {{question.no}} 题</text>
+    <text class="er-close" bindtap="close">关闭</text>
+  </view>
+
+  <!-- ============ 编辑态：正文里只有这一个输入框 ============
+       textarea 是原生组件，层级最高且**不会被 scroll-view 裁剪**，只要它待在滚动区里，
+       内容一长就会画到面板外面压住底部按钮（开发者工具看不出来，真机必现）。
+       所以编辑态把正文整体让给它，高度就是正文区高度（bodyH，px，由 js 算），不存在"越出"这回事。 -->
+  <block wx:if="{{editing}}">
+    <view class="er-sub">修改「{{editLabel}}」，改完点「完成」</view>
+    <view class="er-edit" style="{{bodyH ? 'height:' + bodyH + 'px;flex:none;' : ''}}">
+      <textarea class="er-input" value="{{editValue}}" data-field="{{editing}}"
+        bindinput="onInput" focus="{{true}}" cursor-spacing="24" maxlength="-1"
+        placeholder="{{editPh}}"></textarea>
+    </view>
+    <view class="er-foot">
+      <view class="er-btn er-btn-ghost" bindtap="cancelEdit">取消</view>
+      <view class="er-btn er-btn-primary" bindtap="endEdit">完成</view>
+    </view>
+  </block>
+
+  <!-- ============ 列表态 ============ -->
+  <block wx:else>
+    <view class="er-sub">勾选问题类型，点一下要改的地方就能输入正确内容；保存后直接写回题库里的这道题。</view>
+
+    <!-- 正文区高度由 js 算好后写在 style 上（bodyH，px）：
+         不依赖 flex 能不能把 scroll-view 压回剩余空间，也不依赖滚动容器会不会裁剪内容 ——
+         高度是死的，容器外的内容画不出来，按钮区域也就永远干净。
+         er-inner 只是内容自然高度的量尺（js 用它决定要不要夹紧）。 -->
+    <scroll-view class="er-body" scroll-y style="{{bodyH ? 'height:' + bodyH + 'px;flex:none;' : ''}}">
+      <view class="er-inner">
+        <!-- 只读框里显示的永远是**题库现值**。上次记下的修正若还没进题库，这里明说 ——
+             否则用户会以为"我改过了"，刷题却是旧的（2026-09-24 报的就是这个）。
+             放在正文区里而不是面板顶部：正文区高度是算死的，多一块固定高度的东西会撑破布局。 -->
+        <view class="er-stale" wx:if="{{staleText}}">上次记下的修正还没进题库：{{staleText}}</view>
+
+        <view class="er-label">问题类型</view>
+        <view class="er-chips">
+          <view class="er-chip {{active.indexOf(item.key) >= 0 ? 'er-chip-on' : ''}}"
+            wx:for="{{types}}" wx:key="key" bindtap="toggleType" data-key="{{item.key}}">{{item.label}}</view>
+        </view>
+
+        <view class="er-hint" wx:if="{{!fields.length}}">勾选「题干 / 选项 / 答案 / 解析」后，这里会出现可以改的框</view>
+
+        <!-- 只读行：内容放在固定高度的框里，长了就在框内上下滚（滚轮），不撑高面板 -->
+        <view wx:for="{{fields}}" wx:key="key">
+          <view class="er-field-head" bindtap="startEdit" data-key="{{item.key}}">
+            <text class="er-label">{{item.label}}</text>
+            <text class="er-view-go">修改</text>
+          </view>
+          <view class="er-view {{item.value ? '' : 'er-view-ph'}}" wx:if="{{!item.over}}" style="height:{{item.h}}rpx">
+            <text class="er-view-t" user-select>{{item.value || item.ph}}</text>
+          </view>
+          <scroll-view class="er-view {{item.value ? '' : 'er-view-ph'}}" scroll-y wx:else style="height:{{item.h}}rpx">
+            <text class="er-view-t" user-select>{{item.value || item.ph}}</text>
+          </scroll-view>
+        </view>
+
+        <view class="er-field-head" bindtap="startEdit" data-key="note">
+          <text class="er-label">备注</text>
+          <text class="er-view-go">修改</text>
+        </view>
+        <view class="er-view {{note ? '' : 'er-view-ph'}}" wx:if="{{!noteOver}}" style="height:{{noteH}}rpx">
+          <text class="er-view-t" user-select>{{note || '点这里写备注：与书末答案速览不一致 / 题号错位 / 此处应有表格图'}}</text>
+        </view>
+        <scroll-view class="er-view {{note ? '' : 'er-view-ph'}}" scroll-y wx:else style="height:{{noteH}}rpx">
+          <text class="er-view-t" user-select>{{note || '点这里写备注：与书末答案速览不一致 / 题号错位 / 此处应有表格图'}}</text>
+        </scroll-view>
+      </view>
+    </scroll-view>
+
+    <view class="er-foot">
+      <view class="er-btn er-btn-plain" wx:if="{{existed}}" bindtap="del">删除</view>
+      <view class="er-btn er-btn-ghost" bindtap="close">取消</view>
+      <view class="er-btn er-btn-primary" bindtap="save">保存</view>
+    </view>
+  </block>
+</view>

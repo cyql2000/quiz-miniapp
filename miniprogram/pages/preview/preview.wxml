@@ -1,0 +1,73 @@
+<view class="page preview" wx:if="{{loaded}}">
+  <!-- 结果摘要 -->
+  <view class="summary card">
+    <view class="between">
+      <view class="flex1">
+        <view class="title-md ellipsis">{{set.title}}</view>
+        <view class="weak mt8">生成于 {{timeText}}</view>
+      </view>
+      <view class="ok-badge">完成</view>
+    </view>
+    <view class="stats mt24">
+      <view class="stat">
+        <view class="num">{{set.questionCount}}</view>
+        <view class="stat-label">识别题目</view>
+      </view>
+      <view class="stat">
+        <view class="num green">{{matchedCount}}</view>
+        <view class="stat-label">匹配到解析</view>
+      </view>
+      <view class="stat">
+        <view class="num orange">{{noExpl}}</view>
+        <view class="stat-label">无解析</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提示 -->
+  <view class="warn card" wx:if="{{noExpl > 0}}">
+    <view class="row">
+      <text class="flex1">有 {{noExpl}} 道题未匹配到答案解析，可能原因：答案文件题号与试题不一致、格式未被识别。可检查源文件后在首页删除本套题库重新生成。</text>
+    </view>
+  </view>
+
+  <!-- 题型分布 -->
+  <view class="card" wx:if="{{dist.length}}">
+    <view class="title-md mb16">题型分布</view>
+    <view class="row" style="flex-wrap:wrap;">
+      <text class="tag tag-gray dist-tag" wx:for="{{dist}}" wx:key="t">{{item.label}} {{item.n}}</text>
+    </view>
+  </view>
+
+  <!-- 题目列表（前 100 条预览）：点任意一条直接进到那道题 -->
+  <view class="card list-card" wx:if="{{sample.length}}">
+    <view class="list-head mb16">
+      <text class="title-md">识别结果预览{{sample.length < set.questionCount ? '（前 100 条）' : ''}}</text>
+      <text class="jump-link" bindtap="jumpToSeq">跳到第 N 题</text>
+    </view>
+    <view class="q-row between" wx:for="{{sample}}" wx:key="no"
+      bindtap="openQuestion" data-seq="{{index + 1}}" hover-class="q-row-hover">
+      <view class="flex1">
+        <view class="row">
+          <text class="q-no">{{item.no}}.</text>
+          <text class="q-type tag {{item.type==='judge'?'tag-green':item.type==='text'?'tag-orange':item.type==='multi'?'tag-brand':'tag-gray'}}">{{item.typeLabel}}</text>
+          <text class="tag ml8 {{item.matched?'tag-green':'tag-red'}}">{{item.matched?'已配解析':'无解析'}}</text>
+        </view>
+        <view class="q-stem ellipsis-2 mt8">{{item.stem}}</view>
+      </view>
+      <text class="q-arrow">›</text>
+    </view>
+    <view class="weak mt16" wx:if="{{sample.length < set.questionCount}}">
+      列表只展示前 100 条，其余题目用右上角「跳到第 N 题」按题序进入
+    </view>
+  </view>
+
+  <view class="footer-bar">
+    <button class="btn btn-ghost" bindtap="startQuiz" data-mode="random">随机刷题</button>
+    <button class="btn btn-primary" bindtap="startQuiz" data-mode="order">顺序刷题</button>
+  </view>
+</view>
+
+<view class="empty page" wx:if="{{!loaded}}">
+  <view class="empty-title">加载中…</view>
+</view>

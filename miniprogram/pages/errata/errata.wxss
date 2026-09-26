@@ -1,0 +1,171 @@
+.errata { padding-bottom: 60rpx; }
+.errata.has-footer { padding-bottom: 180rpx; }
+
+.ml8 { margin-left: 8rpx; }
+
+/* 汇总 */
+.sum-card .dot {
+  width: 14rpx; height: 14rpx;
+  border-radius: 50%;
+  background: var(--brand);
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+.sum-row { display: flex; }
+.sum-item { flex: 1; text-align: center; }
+.sum-item + .sum-item { border-left: 1rpx solid var(--line); }
+.sum-num { font-size: 40rpx; font-weight: 700; line-height: 1.2; }
+.sum-num.red { color: var(--danger); }
+.sum-num.green { color: var(--success); }
+.sum-num.gray { color: var(--text-sub); }
+.sum-label { font-size: 22rpx; color: var(--text-weak); margin-top: 2rpx; }
+
+/* 题库筛选 */
+.chips { white-space: nowrap; margin-bottom: 20rpx; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 360rpx;
+  height: 60rpx;
+  padding: 0 22rpx;
+  margin-right: 14rpx;
+  border-radius: 30rpx;
+  background: #fff;
+  border: 1rpx solid var(--line);
+  font-size: 24rpx;
+  color: var(--text-sub);
+  vertical-align: middle;
+}
+.chip-text {
+  max-width: 260rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.chip-on {
+  background: var(--brand-light);
+  border-color: transparent;
+  color: var(--brand);
+  font-weight: 600;
+}
+.chip-badge {
+  margin-left: 8rpx;
+  font-size: 20rpx;
+  padding: 0 8rpx;
+  border-radius: 8rpx;
+  background: #FDEBEB;
+  color: var(--danger);
+}
+.chip-on .chip-badge { background: #fff; }
+
+/* 状态切换 */
+.tabs {
+  display: flex;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 8rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(30, 36, 51, 0.04);
+}
+.tab {
+  flex: 1;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: var(--text-sub);
+  border-radius: 12rpx;
+}
+.tab-on {
+  background: var(--brand-light);
+  color: var(--brand);
+  font-weight: 600;
+}
+.tab-count { margin-left: 6rpx; font-size: 22rpx; opacity: 0.8; }
+
+/* 空态 */
+.empty-box {
+  width: 120rpx; height: 120rpx;
+  margin: 0 auto;
+  border-radius: 32rpx;
+  background: linear-gradient(135deg, #EAF0FE, #E5F6EE);
+  position: relative;
+}
+.empty-box::before {
+  content: '';
+  position: absolute; left: 38rpx; top: 30rpx;
+  width: 44rpx; height: 56rpx;
+  border: 5rpx solid var(--brand);
+  border-radius: 8rpx;
+  box-sizing: border-box;
+}
+.empty-box::after {
+  content: '';
+  position: absolute; left: 50rpx; top: 46rpx;
+  width: 20rpx; height: 5rpx;
+  background: var(--brand);
+  border-radius: 3rpx;
+  box-shadow: 0 16rpx 0 var(--brand);
+}
+
+/* 分组 */
+.group-head {
+  display: flex;
+  align-items: center;
+  margin: 8rpx 8rpx 16rpx;
+}
+.group-title { font-size: 30rpx; font-weight: 600; }
+
+/* 记录卡片 */
+.item { padding: 24rpx; }
+.item .q-no { font-size: 31rpx; font-weight: 700; }
+
+.diff { border-radius: 14rpx; background: #F8FAFF; padding: 6rpx 16rpx; }
+.diff-row { padding: 12rpx 0; }
+.diff-row + .diff-row { border-top: 1rpx dashed var(--line); }
+.diff-label { font-size: 22rpx; color: var(--text-weak); margin-bottom: 6rpx; }
+.diff-from, .diff-to {
+  font-size: 27rpx;
+  line-height: 1.6;
+  word-break: break-all;
+  white-space: pre-wrap;
+  display: flex;
+}
+.diff-from { color: var(--text-weak); }
+.diff-to { color: var(--text); margin-top: 6rpx; }
+.diff-tag {
+  flex-shrink: 0;
+  width: 34rpx; height: 34rpx;
+  border-radius: 8rpx;
+  background: #EEF1F7;
+  color: var(--text-weak);
+  font-size: 20rpx;
+  line-height: 34rpx;
+  text-align: center;
+  margin-right: 10rpx;
+}
+.diff-tag-to { background: var(--success); color: #fff; }
+
+.note {
+  font-size: 25rpx;
+  color: var(--text-sub);
+  background: #FFF8EC;
+  border-radius: 12rpx;
+  padding: 14rpx 18rpx;
+  word-break: break-all;
+}
+
+.acts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  border-top: 1rpx solid var(--line);
+  padding-top: 18rpx;
+  gap: 26rpx;
+}
+.act { font-size: 25rpx; color: var(--text-sub); }
+.act-brand { color: var(--brand); font-weight: 600; }
+.act-ok { color: var(--success); }
+.act-plain { color: var(--warn); }
+.act-del { color: var(--text-weak); }

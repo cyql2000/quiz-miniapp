@@ -1,0 +1,81 @@
+<view class="page result" wx:if="{{loaded}}">
+  <view class="hero">
+    <view class="ring" style="background: conic-gradient({{rateColor}} {{rate}}%, #EDF1F8 0);">
+      <view class="ring-inner">
+        <view class="rate-num">{{rate}}%</view>
+        <view class="rate-label">正确率</view>
+      </view>
+    </view>
+    <view class="hero-title mt16">{{title}}</view>
+    <view class="weak mt8">{{modeLabel}} · 用时 {{costText}}</view>
+  </view>
+
+  <view class="card stats-card">
+    <view class="stat">
+      <view class="num">{{answered}}</view>
+      <view class="stat-label">已作答</view>
+    </view>
+    <view class="stat">
+      <view class="num green">{{correct}}</view>
+      <view class="stat-label">答对</view>
+    </view>
+    <view class="stat">
+      <view class="num red">{{wrongCount}}</view>
+      <view class="stat-label">答错</view>
+    </view>
+    <view class="stat">
+      <view class="num gray">{{unanswered}}</view>
+      <view class="stat-label">未作答</view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="between">
+      <text class="title-md">整卷回顾</text>
+      <text class="weak">标记 {{markedCount}} 题</text>
+    </view>
+    <view class="weak mt8">逐题对照我的作答、正确答案与解析，把这张卷子彻底过一遍。</view>
+    <button class="btn btn-ghost mt16" bindtap="goReviewAll">查看整卷解析</button>
+    <button class="btn btn-plain mt16" wx:if="{{wrongCount}}" bindtap="goReviewWrong">只看本次错题（{{wrongCount}}）</button>
+    <button class="btn btn-plain mt16" wx:if="{{markedCount && !custom}}" bindtap="goMarked">标记题重练（{{markedCount}}）</button>
+  </view>
+
+  <view class="card" wx:if="{{!custom && (wbPending || wbMastered)}}">
+    <view class="between">
+      <text class="title-md">错题回顾</text>
+      <text class="weak">错 {{wbPending}} · 易错 {{wbHard}} · 已掌握 {{wbMastered}}</text>
+    </view>
+    <view class="weak mt8">错题会累计保存，连续答对 2 次自动归入「已掌握」。</view>
+
+    <block wx:if="{{hardList.length}}">
+      <view class="divider"></view>
+      <view class="weak mb16">易错题（错误次数最多）</view>
+      <view class="hard-item" wx:for="{{hardList}}" wx:key="no" bindtap="retrainOne" data-no="{{item.no}}">
+        <view class="row">
+          <text class="q-no">{{item.no}}</text>
+          <text class="tag tag-gray">{{item.typeLabel}}</text>
+          <text class="tag tag-red ml8">错 {{item.wrongCount}} 次</text>
+          <view class="flex1"></view>
+          <text class="weak">错率 {{item.errRate}}%</text>
+        </view>
+        <view class="hard-stem ellipsis-2">{{item.stem}}</view>
+      </view>
+    </block>
+
+    <button class="btn btn-danger-ghost mt16" wx:if="{{wbHard}}" bindtap="redoHard">攻克易错题（{{wbHard}}）</button>
+    <button class="btn btn-ghost mt16" wx:if="{{wbPending}}" bindtap="redoWrong">重练全部错题（{{wbPending}}）</button>
+    <button class="btn btn-plain mt16" bindtap="goWrongBook">进入错题本</button>
+  </view>
+
+  <view class="card" wx:elif="{{wrongCount > 0}}">
+    <view class="title-md mb16">错题巩固</view>
+    <view class="weak" wx:if="{{custom}}">答错的题已分别记入各自题库的错题本，可到错题本按题库复习。</view>
+    <view class="weak" wx:else>错题已收入错题本，可反复练习直至掌握。</view>
+    <button class="btn btn-danger-ghost mt16" bindtap="goWrongBook">进入错题本</button>
+  </view>
+
+  <view class="footer-bar">
+    <button class="btn btn-ghost" bindtap="backHome">返回首页</button>
+    <button class="btn btn-primary" bindtap="redoAll">{{custom ? '再抽一组' : '再练一遍'}}</button>
+  </view>
+</view>

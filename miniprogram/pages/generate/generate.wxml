@@ -1,0 +1,111 @@
+<view class="page generate">
+  <view class="intro">
+    指定一份<text class="hl">试题文件</text>与一份<text class="hl">答案解析文件</text>，系统将自动识别题目、匹配答案与解析，生成一套可随时刷题的题库。
+  </view>
+
+  <!-- 第一步：试题文件 -->
+  <view class="card">
+    <view class="between">
+      <view class="row">
+        <text class="step-no">1</text>
+        <text class="title-md">选择试题文件</text>
+      </view>
+      <text class="required">* 必选</text>
+    </view>
+    <view class="picker-box mt16 {{qFile ? 'picked' : ''}}" bindtap="openPicker" data-slot="q">
+      <block wx:if="{{qFile}}">
+        <view class="flex1">
+          <view class="ellipsis title-md">{{qFile.name}}</view>
+          <view class="weak mt8">本机已保存 · 点击可更换</view>
+        </view>
+        <view class="clear" catchtap="clearSlot" data-slot="q">清除</view>
+      </block>
+      <block wx:else>
+        <view class="plus">＋</view>
+        <text class="sub">从文件库选择 / 未导入先导入</text>
+      </block>
+    </view>
+  </view>
+
+  <!-- 第二步：答案解析文件 -->
+  <view class="card">
+    <view class="between">
+      <view class="row">
+        <text class="step-no">2</text>
+        <text class="title-md">选择答案/解析文件</text>
+      </view>
+      <text class="weak">（可选）</text>
+    </view>
+    <view class="picker-box mt16 {{aFile ? 'picked' : ''}}" bindtap="openPicker" data-slot="a">
+      <block wx:if="{{aFile}}">
+        <view class="flex1">
+          <view class="ellipsis title-md">{{aFile.name}}</view>
+          <view class="weak mt8">点击可更换</view>
+        </view>
+        <view class="clear" catchtap="clearSlot" data-slot="a">清除</view>
+      </block>
+      <block wx:else>
+        <view class="plus">＋</view>
+        <text class="sub">选择后每道题下方自动展示对应解析</text>
+      </block>
+    </view>
+    <view class="mt8 weak">未选择时，将生成不含答案的题库（可在刷题时自查）。答案/解析与章节标题一致的会逐卷自动配对；也支持"参考答案速览"写法（如 1-5 CCADA、连续字母串）</view>
+  </view>
+
+  <!-- 第三步：题库名称 -->
+  <view class="card">
+    <view class="between">
+      <view class="row">
+        <text class="step-no">3</text>
+        <text class="title-md">题库名称</text>
+      </view>
+    </view>
+    <input class="title-input mt16" placeholder="请输入题库名称（留空则用文件名）" placeholder-class="ph"
+      value="{{title}}" bindinput="onTitle" maxlength="40" />
+    <view class="between mt16">
+      <view class="row">
+        <text class="title-md" style="font-size:28rpx;">自动按章节拆分</text>
+      </view>
+      <switch checked="{{split}}" bindchange="onSplitChange" color="#3E6BF0" style="transform: scale(0.8);" />
+    </view>
+    <view class="mt8 weak">识别文件里的章节标题（如「第一章」「Chapter 1」「##」「（一）」），自动拆成多个题库；识别不到时仍按一整套生成</view>
+  </view>
+
+  <!-- 文件格式说明 -->
+  <view class="format-tip">
+    <view class="title-md">文档格式建议（识别更准）</view>
+    <view class="line">· 支持 PDF / Word(.docx) / txt，须为文字版（扫描图片需先 OCR）</view>
+    <view class="line">· 题目以「1.」「1、」「第1题」编号开头，选项独占一行或 A.xx B.xx 连续排列</view>
+    <view class="line">· 答案解析形如「1. C」或「1. 答案：C 解析：…」，题号与试题文件一致</view>
+    <view class="line">· 判断题答案支持 对/错/正确/错误/√/×</view>
+  </view>
+
+  <view class="footer-bar">
+    <button class="btn btn-primary" loading="{{generating}}" disabled="{{generating}}" bindtap="doGenerate">解析并生成题库</button>
+  </view>
+</view>
+
+<!-- 文件选择弹层 -->
+<view class="mask" wx:if="{{picker.show}}" bindtap="closePicker"></view>
+<view class="sheet" wx:if="{{picker.show}}">
+  <view class="sheet-handle"></view>
+  <view class="sheet-title">{{picker.slot==='q' ? '选择试题文件' : '选择答案解析文件'}}</view>
+  <view class="weak mt8" wx:if="{{picker.hidden}}">
+    已过滤 {{picker.hidden}} 个{{picker.slot==='q' ? '非试题' : '非答案解析'}}文件（答案解析、未分类的其它文件、端上无法解析的类型）
+  </view>
+  <view class="picker-list mt24">
+    <view class="file-item between" wx:for="{{candidates}}" wx:key="_id"
+      bindtap="pickFile" data-id="{{item._id}}">
+      <view class="flex1">
+        <view class="ellipsis title-md">{{item.name}}</view>
+        <view class="weak mt8">{{item.sizeText}} · {{item.timeText}}</view>
+      </view>
+      <text class="tag {{item.kind==='question'?'tag-brand':item.kind==='answer'?'tag-green':'tag-gray'}}">{{item.kindLabel}}</text>
+    </view>
+    <view class="empty" wx:if="{{!candidates.length}}">
+      <view class="empty-title">文件库暂无可用文件</view>
+    </view>
+    <button class="btn btn-plain mt24" bindtap="goUpload">去文件库上传 ›</button>
+    <button class="btn btn-plain mt16" bindtap="closePicker">取消</button>
+  </view>
+</view>

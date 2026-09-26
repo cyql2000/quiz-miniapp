@@ -1,0 +1,65 @@
+<view class="page rv-page" wx:if="{{loaded}}">
+  <view class="card">
+    <view class="title-md ellipsis">{{title || '未命名题库'}}</view>
+    <view class="weak mt8">{{modeLabel}} · 当前范围 {{total}} 题<text wx:if="{{hasMore}}">（已展示 {{shown}}）</text></view>
+  </view>
+
+  <view class="tabs">
+    <view class="tab {{scope === item.key ? 'tab-on' : ''}}" wx:for="{{tabs}}" wx:key="key"
+      bindtap="changeScope" data-scope="{{item.key}}">{{item.label}} {{item.count}}</view>
+  </view>
+
+  <view class="empty card" wx:if="{{!items.length}}">
+    <view class="empty-title">这里还是空的</view>
+    <view class="empty-desc">{{emptyText}}</view>
+  </view>
+
+  <view class="card rv-item" wx:for="{{items}}" wx:key="key">
+    <view class="row">
+      <text class="q-no">{{item.no}}</text>
+      <text class="tag tag-gray">{{item.typeLabel}}</text>
+      <text class="tag tag-gray ellipsis" wx:if="{{item.from}}" style="max-width:280rpx;margin-left:8rpx;">{{item.from}}</text>
+      <text class="tag tag-orange ml8" wx:if="{{item.marked}}">已标记</text>
+      <view class="flex1"></view>
+      <text class="tag tag-green" wx:if="{{item.isCorrect}}">答对</text>
+      <text class="tag tag-red" wx:elif="{{item.isWrong}}">答错</text>
+      <text class="tag tag-gray" wx:else>{{item.answered ? '未判定' : '未作答'}}</text>
+    </view>
+
+    <view class="rv-stem">{{item.stem}}</view>
+
+    <view class="rv-opts" wx:if="{{item.hasOptions}}">
+      <view class="rv-opt {{o.cls}}" wx:for="{{item.options}}" wx:for-item="o" wx:key="key">
+        <text class="rv-opt-key">{{o.key}}</text>
+        <text class="rv-opt-text">{{o.text}}</text>
+      </view>
+    </view>
+
+    <view class="rv-ans">
+      <view class="rv-line">
+        <text class="rv-lb">我的作答</text>
+        <text class="{{item.isCorrect ? 'v-ok' : item.isWrong ? 'v-bad' : 'v-dim'}}">{{item.myAnswer}}</text>
+      </view>
+      <view class="rv-line">
+        <text class="rv-lb">正确答案</text>
+        <text class="v-ok">{{item.correctAnswer || '无标准答案'}}</text>
+      </view>
+    </view>
+
+    <block wx:if="{{item.explanation}}">
+      <view class="divider"></view>
+      <view class="rv-ex-title">解析</view>
+      <view class="rv-ex">{{item.explanation}}</view>
+    </block>
+    <view class="weak mt8" wx:else>本题未提供解析</view>
+  </view>
+
+  <view class="rv-more" wx:if="{{hasMore}}" bindtap="loadMore">加载更多（还有 {{total - shown}} 题）</view>
+  <view class="rv-more weak" wx:elif="{{items.length}}">已经到底了</view>
+
+  <view class="footer-bar">
+    <button class="btn btn-plain" wx:if="{{markedN && !custom}}" bindtap="goMarked">标记题重练（{{markedN}}）</button>
+    <button class="btn btn-danger-ghost" wx:if="{{wrongN && !custom}}" bindtap="goWrong">错题重练（{{wrongN}}）</button>
+    <button class="btn btn-primary" bindtap="backHome">回到首页</button>
+  </view>
+</view>

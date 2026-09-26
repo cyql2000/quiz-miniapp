@@ -1,0 +1,78 @@
+.files { padding-bottom: 180rpx; }
+
+.tip {
+  background: #EEF4FF;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+  color: #4A6FC0;
+  line-height: 1.6;
+}
+.tip-icon {
+  width: 36rpx; height: 36rpx;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  font-size: 24rpx;
+  text-align: center;
+  line-height: 36rpx;
+  font-style: normal;
+  margin-right: 14rpx;
+  flex-shrink: 0;
+}
+
+.filters {
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.filter {
+  padding: 8rpx 26rpx;
+  border-radius: 999rpx;
+  background: #fff;
+  color: var(--text-sub);
+  font-size: 26rpx;
+  border: 1rpx solid var(--line);
+  flex-shrink: 0;
+}
+.filter.on {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+
+.file-card { display: flex; align-items: flex-start; }
+
+.file-ico {
+  width: 88rpx; height: 88rpx;
+  border-radius: 14rpx;
+  background: #FDEBE7;
+  color: #E04A33;
+  font-size: 22rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+}
+.file-ico.pdf { background: #FDEBE7; color: #E04A33; }
+.file-ico.doc { background: #E7F0FE; color: #2D6CDB; }
+.file-ico.txt { background: #EDF6EE; color: #2E9154; }
+
+.file-info { min-width: 0; }
+.dot-sep { margin: 0 8rpx; color: #C6CCD9; }
+
+.file-ops { flex-shrink: 0; display: flex; flex-direction: column; gap: 10rpx; margin-left: 12rpx; }
+.op {
+  font-size: 24rpx;
+  color: var(--brand);
+  background: var(--brand-light);
+  border-radius: 10rpx;
+  padding: 4rpx 20rpx;
+  text-align: center;
+}
+.op-danger { color: var(--danger); background: #FDEDED; }

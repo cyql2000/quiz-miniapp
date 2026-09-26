@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "轻刷题",
+  "enablePullDownRefresh": true,
+  "backgroundColor": "#F4F6FB",
+  "onReachBottomDistance": 100
+}

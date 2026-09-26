@@ -1,0 +1,111 @@
+<view class="page errata {{setId ? 'has-footer' : ''}}">
+  <!-- 汇总 -->
+  <view class="card sum-card">
+    <view class="between">
+      <text class="title-md">校对清单</text>
+      <text class="weak">{{scopeTitle}}</text>
+    </view>
+    <view class="sum-row mt16">
+      <view class="sum-item">
+        <view class="sum-num red">{{sum.open}}</view>
+        <view class="sum-label">待修</view>
+      </view>
+      <view class="sum-item">
+        <view class="sum-num green">{{sum.fixed}}</view>
+        <view class="sum-label">已修</view>
+      </view>
+      <view class="sum-item">
+        <view class="sum-num">{{sum.total}}</view>
+        <view class="sum-label">合计</view>
+      </view>
+      <view class="sum-item">
+        <view class="sum-num gray">{{sum.sets}}</view>
+        <view class="sum-label">涉及题库</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 题库筛选 -->
+  <scroll-view class="chips" scroll-x wx:if="{{setFilter.length > 1}}">
+    <view class="chip {{setId === item.setId ? 'chip-on' : ''}}" wx:for="{{setFilter}}" wx:key="setId"
+      bindtap="switchSet" data-id="{{item.setId}}">
+      <text class="chip-text">{{item.title}}</text>
+      <text class="chip-badge" wx:if="{{item.count}}">{{item.count}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 状态切换 -->
+  <view class="tabs">
+    <view class="tab {{tab === item.key ? 'tab-on' : ''}}" wx:for="{{tabs}}" wx:key="key"
+      bindtap="changeTab" data-tab="{{item.key}}">
+      {{item.label}}<text class="tab-count" wx:if="{{item.count}}">{{item.count}}</text>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <view class="empty card" wx:if="{{!groups.length}}">
+    <view class="empty-box"></view>
+    <view class="empty-title">{{emptyTip}}</view>
+  </view>
+
+  <!-- 分组列表 -->
+  <view wx:for="{{groups}}" wx:for-item="group" wx:key="setId">
+    <view class="group-head" wx:if="{{!setId}}">
+      <text class="group-title ellipsis">{{group.title}}</text>
+      <text class="weak">{{group.count}} 条</text>
+    </view>
+
+    <view class="item card" wx:for="{{group.items}}" wx:key="key">
+      <view class="between">
+        <view class="row flex1">
+          <text class="q-no">第 {{item.no}} 题</text>
+          <text class="tag tag-red ml8" wx:for="{{item.typeLabels}}" wx:for-item="tp" wx:key="*this">{{tp}}</text>
+        </view>
+        <text class="tag {{item.pending ? 'tag-orange' : 'tag-green'}}">{{item.pending ? '待修' : '已修'}}</text>
+      </view>
+
+      <!-- 修正内容对比 -->
+      <view class="diff mt16" wx:if="{{item.hasDiff}}">
+        <view class="diff-row" wx:for="{{item.diffs}}" wx:for-item="d" wx:key="key">
+          <view class="diff-label">{{d.label}}</view>
+          <view class="diff-from"><text class="diff-tag">原</text>{{d.from}}</view>
+          <view class="diff-to"><text class="diff-tag diff-tag-to">改</text>{{d.to}}</view>
+        </view>
+      </view>
+
+      <view class="note mt8" wx:if="{{item.note}}">备注：{{item.note}}</view>
+
+      <!-- 未改动时展开显示原值，便于核对 -->
+      <block wx:if="{{!item.hasDiff}}">
+        <view class="weak mt8" wx:if="{{!item.expanded}}" bindtap="toggleItem" data-key="{{item.key}}">仅标记了问题类型 · 点击展开原值</view>
+        <block wx:else>
+          <view class="diff mt16">
+            <view class="diff-row" wx:for="{{item.originals}}" wx:for-item="o" wx:key="key">
+              <view class="diff-label">{{o.label}}</view>
+              <view class="diff-from"><text class="diff-tag">原</text>{{o.text}}</view>
+            </view>
+          </view>
+          <view class="weak mt8" bindtap="toggleItem" data-key="{{item.key}}">收起</view>
+        </block>
+      </block>
+
+      <view class="acts mt16">
+        <text class="act act-brand" bindtap="openEdit" data-sid="{{item.setId}}" data-no="{{item.no}}">编辑</text>
+        <text class="act act-ok" wx:if="{{item.pending}}" bindtap="toggleStatus" data-sid="{{item.setId}}" data-no="{{item.no}}" data-pending="1">标记已修</text>
+        <text class="act act-plain" wx:else bindtap="toggleStatus" data-sid="{{item.setId}}" data-no="{{item.no}}" data-pending="">回退待修</text>
+        <text class="act" bindtap="copyItem" data-sid="{{item.setId}}" data-no="{{item.no}}">复制</text>
+        <view class="flex1"></view>
+        <text class="act act-del" bindtap="removeItem" data-sid="{{item.setId}}" data-no="{{item.no}}">删除</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 底部操作 -->
+<view class="footer-bar" wx:if="{{groups.length}}">
+  <button class="btn btn-ghost" bindtap="copyAll">{{setId ? '复制该题库清单' : '复制全部清单'}}</button>
+</view>
+
+<!-- 校对编辑面板 -->
+<errata-sheet show="{{sheet.show}}" setId="{{sheet.setId}}" title="{{sheet.title}}" question="{{sheet.question}}"
+  bind:close="closeSheet" bind:saved="onSaved"></errata-sheet>

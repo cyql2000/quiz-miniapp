@@ -1,0 +1,228 @@
+/* 答案补全面板：结构与 errata-sheet 保持一致，只补自己的部分 */
+
+/* ---------------------------------------------------------------
+   遮罩与面板本体的定位样式在这里**重复一份**，不要删。
+   面板用的是全局类名（.mask / .sheet / .sheet-handle / .sheet-title，
+   定义在 app.wxss），而自定义组件默认 styleIsolation: isolated 时
+   app.wxss 的类选择器对组件内部不生效 —— 表现是点了「补答案」页面上
+   什么都看不到（没有 fixed、没有背景、没有 z-index），像是按钮坏了。
+   index.json 已声明 "styleIsolation": "apply-shared" 让全局样式生效；
+   这里再自留一份定位，保证任何隔离设置下「面板能弹出来」这个前提成立。
+   按钮/标签等视觉细节仍沿用全局 .btn / .tag（apply-shared 生效即可）。
+   --------------------------------------------------------------- */
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 34, 0.45);
+  z-index: 100;
+}
+
+.sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #fff;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 24rpx 24rpx calc(32rpx + env(safe-area-inset-bottom));
+  z-index: 101;
+  max-height: 82vh;
+  box-sizing: border-box;
+}
+
+.sheet-handle {
+  width: 72rpx; height: 8rpx;
+  background: #E4E8F0;
+  border-radius: 8rpx;
+  margin: 0 auto 20rpx;
+}
+
+.sheet-title { font-size: 32rpx; font-weight: 600; text-align: center; }
+
+.ans-sheet {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  /* 面板是最后一道闸：正文区万一还是漏出来，也不许它画到面板外面去 */
+  overflow: hidden;
+}
+
+.ans-body {
+  flex: 1;
+  max-height: 56vh;
+  margin-top: 8rpx;
+}
+
+.ans-stem {
+  margin-top: 12rpx;
+  font-size: 28rpx;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.ans-old {
+  margin-top: 14rpx;
+  padding: 10rpx 16rpx;
+  border-radius: 10rpx;
+  background: #FCF1E0;
+  color: #8A6520;
+  font-size: 24rpx;
+}
+
+.ans-label {
+  margin-top: 22rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ans-opts {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 12rpx;
+}
+
+.ans-opt {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16rpx 18rpx;
+  margin-bottom: 12rpx;
+  border-radius: 14rpx;
+  background: #F8FAFF;
+  border: 2rpx solid var(--line);
+}
+
+.ans-opt-on {
+  background: var(--brand-light);
+  border-color: var(--brand);
+}
+
+.ans-opt-key {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #EDF1F8;
+  color: var(--text-sub);
+  font-size: 24rpx;
+  text-align: center;
+  line-height: 40rpx;
+  margin-right: 16rpx;
+  flex: none;
+}
+
+.ans-opt-on .ans-opt-key {
+  background: var(--brand);
+  color: #fff;
+}
+
+.ans-opt-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 27rpx;
+}
+
+/* 编辑态：正文区整体让给唯一的一个输入框。
+   面板这时要有一个**确定的高度**，否则 flex:1 的正文区在 auto 高度的面板里落不下来，
+   textarea 的 height:100% 也就无从算起（表现是输入框只有默认那点高）。 */
+.ans-sheet-edit { height: 80vh; }
+.ans-edit {
+  flex: 1;
+  min-height: 0;
+  margin-top: 8rpx;
+  overflow: hidden;
+}
+
+/* 只读框：普通 view / scroll-view（都不是原生组件），再长也只在框内滚动（滚轮）
+   或按内容走，绝不会画到面板外面压住底部按钮。
+   高度由 js 按内容行数算好（util.boxOf），超过上限才换成 scroll-view 走框内滚动。 */
+.ans-view {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 12rpx;
+  overflow: hidden;
+  padding: 16rpx 18rpx;
+  border-radius: 14rpx;
+  background: #F8FAFF;
+  border: 2rpx solid var(--line);
+  font-size: 27rpx;
+  line-height: 1.6;
+  color: var(--text);
+}
+.ans-view-t { display: block; word-break: break-all; }
+.ans-view-ph .ans-view-t { color: var(--text-weak); }
+
+.ans-field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 22rpx;
+}
+.ans-field-head .ans-label { margin-top: 0; }
+.ans-view-go { font-size: 24rpx; color: var(--brand); }
+
+.ans-sub { font-size: 24rpx; color: var(--text-weak); line-height: 1.6; margin-top: 8rpx; }
+
+/* 输入框：**不要 auto-height**，高度由 .ans-edit 决定。
+   auto-height 会让它按内容长到上千 rpx，画到面板底部压住按钮（真机必现，开发者工具看不出）。 */
+.ans-input {
+  display: block;
+  width: 100%;
+  padding: 16rpx 18rpx;
+  height: 100%;
+  border-radius: 14rpx;
+  background: #F8FAFF;
+  border: 2rpx solid var(--line);
+  font-size: 27rpx;
+  line-height: 1.6;
+  box-sizing: border-box;
+}
+
+.ans-hint {
+  margin-top: 20rpx;
+  padding-bottom: 10rpx;
+  font-size: 23rpx;
+  color: var(--text-weak);
+  line-height: 1.6;
+}
+
+/* 修改结果：改动过的字段给前后两行对照（配色沿用 .tag-orange / .tag-green） */
+.ans-diff {
+  margin-top: 10rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 26rpx;
+  line-height: 1.6;
+  word-break: break-all;
+}
+
+.ans-diff-old { background: #FCF1E0; color: var(--warn); }
+.ans-diff-new { background: #E5F6EE; color: var(--success); }
+
+/* 没改动的字段只展示最终值 */
+.ans-final {
+  margin-top: 10rpx;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
+  background: #F8FAFF;
+  border: 2rpx solid var(--line);
+  font-size: 26rpx;
+  line-height: 1.6;
+  color: var(--text);
+  word-break: break-all;
+}
+
+/* 底部按钮区：白底 + 抬到内容之上。
+   正文区高度已经算死了，这里是第二道保险 —— 即便正文又漏出来，
+   也只会被这块白底盖住，不会出现"按钮被压住点不到"。 */
+.ans-foot {
+  position: relative;
+  z-index: 2;
+  background: #fff;
+  display: flex;
+  gap: 20rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid var(--line);
+}
+
+.ans-foot .btn {
+  flex: 1;
+}

@@ -1,0 +1,97 @@
+/* 整卷回顾 */
+.rv-page { padding-bottom: 200rpx; }
+
+.ml8 { margin-left: 8rpx; }
+.q-no { font-size: 34rpx; font-weight: 700; margin-right: 16rpx; }
+
+/* 筛选 tab */
+.tabs {
+  display: flex;
+  gap: 16rpx;
+  margin: 24rpx 0 0;
+}
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border-radius: 16rpx;
+  background: #fff;
+  color: var(--text-sub);
+  font-size: 26rpx;
+  border: 1rpx solid var(--line);
+}
+.tab-on {
+  background: var(--brand-light);
+  color: var(--brand);
+  border-color: var(--brand-light);
+  font-weight: 600;
+}
+
+.rv-item { margin-top: 24rpx; }
+.rv-stem {
+  margin-top: 20rpx;
+  font-size: 31rpx;
+  line-height: 1.75;
+  color: var(--text);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+/* 选项：正确项绿、我选错的项红，其余保持中性 */
+.rv-opts { margin-top: 20rpx; }
+.rv-opt {
+  display: flex;
+  align-items: flex-start;
+  padding: 16rpx 20rpx;
+  margin-top: 12rpx;
+  border-radius: 14rpx;
+  background: #F7F8FB;
+  font-size: 28rpx;
+  line-height: 1.6;
+}
+.rv-opt-key {
+  width: 44rpx;
+  flex: none;
+  color: var(--text-sub);
+  font-weight: 600;
+}
+.rv-opt-text { flex: 1; min-width: 0; color: var(--text); word-break: break-all; }
+.rv-opt.rv-right { background: #E5F6EE; }
+.rv-opt.rv-right .rv-opt-key { color: var(--success); }
+.rv-opt.rv-wrong { background: #FDEBEB; }
+.rv-opt.rv-wrong .rv-opt-key { color: var(--danger); }
+
+/* 我的作答 / 正确答案 对照 */
+.rv-ans {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 14rpx;
+  background: #F7F8FB;
+}
+.rv-line { display: flex; align-items: flex-start; }
+.rv-line + .rv-line { margin-top: 12rpx; }
+.rv-lb {
+  width: 150rpx;
+  flex: none;
+  color: var(--text-weak);
+  font-size: 25rpx;
+}
+.v-ok { flex: 1; min-width: 0; color: var(--success); font-weight: 600; word-break: break-all; }
+.v-bad { flex: 1; min-width: 0; color: var(--danger); font-weight: 600; word-break: break-all; }
+.v-dim { flex: 1; min-width: 0; color: var(--text-sub); word-break: break-all; }
+
+.rv-ex-title { font-size: 26rpx; color: var(--text-weak); margin-bottom: 8rpx; }
+.rv-ex {
+  font-size: 28rpx;
+  line-height: 1.75;
+  color: var(--text-sub);
+  word-break: break-all;
+  white-space: pre-wrap;
+}
+
+.rv-more {
+  text-align: center;
+  padding: 32rpx 0;
+  font-size: 27rpx;
+  color: var(--brand);
+}

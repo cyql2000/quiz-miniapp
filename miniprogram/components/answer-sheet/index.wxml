@@ -1,0 +1,129 @@
+<view class="mask" wx:if="{{show}}" bindtap="close"></view>
+<view class="sheet ans-sheet {{editing ? 'ans-sheet-edit' : ''}}" wx:if="{{show}}" catchtap="noop">
+  <view class="sheet-handle"></view>
+  <view class="sheet-title">{{result ? '修改结果' : '补全答案'}}</view>
+
+  <!-- ============ 修改结果：当场确认改成了什么 ============ -->
+  <block wx:if="{{result}}">
+    <scroll-view class="ans-body" scroll-y>
+      <view class="row mt8">
+        <text class="tag tag-green">已保存</text>
+        <text class="weak" style="margin-left:10rpx;">第 {{result.no}} 题 · {{result.typeLabel}}</text>
+      </view>
+
+      <view class="ans-label">题干</view>
+      <view class="ans-stem ellipsis-2">{{result.stem || '（题干为空）'}}</view>
+
+      <block wx:if="{{result.options.length}}">
+        <view class="ans-label">选项<text class="weak">（绿色为正确答案）</text></view>
+        <view class="ans-opts">
+          <view class="ans-opt {{item.right ? 'ans-opt-on' : ''}}" wx:for="{{result.options}}" wx:key="key">
+            <text class="ans-opt-key">{{item.key}}</text>
+            <text class="ans-opt-text ellipsis">{{item.text}}</text>
+          </view>
+        </view>
+      </block>
+
+      <view class="ans-label">答案<text class="weak" wx:if="{{!result.answerChanged}}">（未改动）</text></view>
+      <block wx:if="{{result.answerChanged}}">
+        <view class="ans-diff ans-diff-old">原：{{result.answerOld}}</view>
+        <view class="ans-diff ans-diff-new">改：{{result.answerNew}}</view>
+      </block>
+      <view class="ans-final" wx:else>{{result.answerNew}}</view>
+
+      <view class="ans-label">解析<text class="weak" wx:if="{{!result.explChanged}}">（未改动）</text></view>
+      <block wx:if="{{result.explChanged}}">
+        <view class="ans-diff ans-diff-old">原：{{result.explOld}}</view>
+        <view class="ans-diff ans-diff-new">改：{{result.explNew}}</view>
+      </block>
+      <view class="ans-final" wx:else>{{result.explNew}}</view>
+
+      <view class="ans-hint">
+        已写入题库明细：判分、整卷回顾、错题本都用新答案。
+        这题在校对清单里的记录会一并更新。
+      </view>
+    </scroll-view>
+
+    <view class="ans-foot">
+      <button class="btn btn-primary" bindtap="finish">完成</button>
+    </view>
+  </block>
+
+  <!-- ============ 编辑态：正文里只有这一个输入框 ============
+       textarea 是原生组件，层级最高且**不会被 scroll-view 裁剪**：只要它待在滚动区里，
+       内容一长就会画到面板外面压住底部按钮（开发者工具看不出来，真机必现）。
+       所以编辑态把正文整体让给它，高度就是正文区高度，不存在"越出"这回事。 -->
+  <block wx:elif="{{editing}}">
+    <view class="ans-sub">修改「{{editLabel}}」，改完点「完成」</view>
+    <view class="ans-edit">
+      <textarea class="ans-input" value="{{editValue}}" data-field="{{editing}}"
+        bindinput="onInput" focus="{{true}}" cursor-spacing="24" maxlength="-1"
+        placeholder="{{editPh}}"></textarea>
+    </view>
+    <view class="ans-foot">
+      <button class="btn btn-plain" bindtap="cancelEdit">取消</button>
+      <button class="btn btn-primary" bindtap="endEdit">完成</button>
+    </view>
+  </block>
+
+  <!-- ============ 列表态 ============ -->
+  <block wx:else>
+    <scroll-view class="ans-body" scroll-y>
+      <view class="row mt8">
+        <text class="tag tag-brand">{{typeLabel}}</text>
+        <text class="weak" style="margin-left:10rpx;">第 {{question.no}} 题</text>
+      </view>
+      <view class="ans-stem ellipsis-2">{{question.stem || '（题干为空）'}}</view>
+
+      <view class="ans-old" wx:if="{{hasOld}}">原答案：{{oldText}}</view>
+
+      <!-- 选择题 / 判断题：点选正确答案 -->
+      <block wx:if="{{isChoice || isJudge}}">
+        <view class="ans-label">正确答案{{isJudge ? '' : '（多选请把选项都点上）'}}</view>
+        <view class="ans-opts">
+          <view class="ans-opt {{item.on ? 'ans-opt-on' : ''}}" wx:for="{{choices}}" wx:key="key"
+            bindtap="toggleOption" data-key="{{item.key}}">
+            <text class="ans-opt-key">{{item.key}}</text>
+            <text class="ans-opt-text ellipsis">{{item.text}}</text>
+          </view>
+        </view>
+      </block>
+
+      <!-- 主观题 / 无选项题：只能写参考答案，靠自评。
+           只读内容放在固定高度的框里，长了在框内滚（滚轮），不撑高面板。 -->
+      <block wx:else>
+        <view class="ans-field-head" bindtap="startEdit" data-key="answer">
+          <text class="ans-label">参考答案</text>
+          <text class="ans-view-go">修改</text>
+        </view>
+        <view class="ans-view {{answerText ? '' : 'ans-view-ph'}}" wx:if="{{!answerOver}}" style="height:{{answerH}}rpx">
+          <text class="ans-view-t">{{answerText || '点这里填参考答案；这类题没有选项，判分靠自评'}}</text>
+        </view>
+        <scroll-view class="ans-view {{answerText ? '' : 'ans-view-ph'}}" scroll-y wx:else style="height:{{answerH}}rpx">
+          <text class="ans-view-t">{{answerText || '点这里填参考答案；这类题没有选项，判分靠自评'}}</text>
+        </scroll-view>
+      </block>
+
+      <view class="ans-field-head" bindtap="startEdit" data-key="explanation">
+        <text class="ans-label">解析</text>
+        <text class="ans-view-go">修改</text>
+      </view>
+      <view class="ans-view {{explanation ? '' : 'ans-view-ph'}}" wx:if="{{!explOver}}" style="height:{{explH}}rpx">
+        <text class="ans-view-t">{{explanation || '点这里写解析（可选）'}}</text>
+      </view>
+      <scroll-view class="ans-view {{explanation ? '' : 'ans-view-ph'}}" scroll-y wx:else style="height:{{explH}}rpx">
+        <text class="ans-view-t">{{explanation || '点这里写解析（可选）'}}</text>
+      </scroll-view>
+
+      <view class="ans-hint">
+        保存后立即生效：判分、整卷回顾、错题本都用新答案。
+        同时会自动记进「校对清单」，方便回头把源文件也改掉。
+      </view>
+    </scroll-view>
+
+    <view class="ans-foot">
+      <button class="btn btn-plain" bindtap="close">取消</button>
+      <button class="btn btn-primary" bindtap="save">保存并生效</button>
+    </view>
+  </block>
+</view>

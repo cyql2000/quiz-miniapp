@@ -1,0 +1,193 @@
+/* 自定义练习页 */
+
+/* 当前设定摘要 */
+.summary-card {
+  border: 1rpx solid #E3EAFB;
+  background: linear-gradient(180deg, #F8FAFF 0%, #FFFFFF 60%);
+}
+.summary-scope {
+  font-size: 26rpx;
+  color: #4A5164;
+  line-height: 1.5;
+}
+.summary-line {
+  font-size: 26rpx;
+  color: #6C7384;
+}
+.summary-line .hl {
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 30rpx;
+}
+.summary-warn {
+  font-size: 24rpx;
+  color: var(--warn);
+}
+
+/* 章节开关 */
+.switch-row {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 0;
+}
+.switch-hover { background: #FAFBFE; }
+.sw {
+  width: 76rpx;
+  height: 44rpx;
+  border-radius: 22rpx;
+  background: #DDE2EC;
+  padding: 4rpx;
+  transition: background 0.2s;
+  flex: none;
+}
+.sw-dot {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  transition: transform 0.2s;
+}
+.sw-on { background: var(--brand); }
+.sw-on .sw-dot { transform: translateX(32rpx); }
+.sw-label {
+  font-size: 28rpx;
+  margin-left: 16rpx;
+}
+
+/* 按书分组的章节：加一层浅底，和上面的开关行、下面的其它卡片区分开 */
+.book-block {
+  margin-bottom: 16rpx;
+  background: #FAFBFF;
+  border: 1rpx solid #EEF1F8;
+  border-radius: 14rpx;
+  padding: 16rpx 18rpx 6rpx;
+}
+.book-block:last-child { margin-bottom: 0; }
+.book-head { padding: 4rpx 0; }
+.book-name {
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+/* 可选项 chip */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 10rpx 20rpx;
+  margin: 0 12rpx 12rpx 0;
+  border-radius: 12rpx;
+  background: #F4F6FB;
+  border: 1rpx solid #ECEFF5;
+  font-size: 26rpx;
+  color: #4A5164;
+}
+/* 范围内没有这种题型/状态 → 灰掉；仍可点（选了之后由顶部提示告诉用户范围没题） */
+.chip-off {
+  opacity: 0.42;
+}
+.chip-off .chip-n { opacity: 0.7; }
+.chip-on {
+  background: var(--brand-light);
+  border-color: var(--brand);
+  color: var(--brand);
+  font-weight: 600;
+  opacity: 1;            /* 选中后不再灰 */
+}
+.chip-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 420rpx;
+}
+.chip-tick {
+  font-size: 24rpx;
+  font-weight: 700;
+  margin-right: 6rpx;
+  flex: none;
+}
+.chip-n {
+  margin-left: 8rpx;
+  font-size: 24rpx;
+  opacity: 0.8;
+}
+
+/* card 内的一句解释：说清这块控件是干什么的 */
+.card-note {
+  font-size: 24rpx;
+  color: #8A90A0;
+  line-height: 1.6;
+}
+
+/* 大号选项块（题型 / 练习状态 / 本次题量）：
+   两列排布，块里直接写清「点了会做什么」，不用用户从名称去猜 */
+.chip-lg {
+  display: flex;
+  width: calc(50% - 12rpx);
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 18rpx 20rpx;
+  border-radius: 16rpx;
+  margin: 0 12rpx 12rpx 0;
+}
+.chip-lg:nth-child(2n) { margin-right: 0; }
+.chip-main {
+  display: flex;
+  align-items: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.chip-lg .chip-tick { font-size: 26rpx; margin-right: 6rpx; }
+.chip-lg .chip-label {
+  max-width: none;
+  white-space: normal;        /* 名称长了折行，不省略 */
+  flex: 1;
+}
+.chip-lg .chip-n {
+  margin-left: 8rpx;
+  font-size: 26rpx;
+  flex: none;
+}
+.chip-sub {
+  font-size: 22rpx;
+  color: #8A90A0;
+  margin-top: 6rpx;
+  line-height: 1.4;
+}
+.chip-on .chip-sub { color: var(--brand); }
+
+/* 题量步进 */
+.stepper {
+  display: flex;
+  align-items: center;
+}
+.step-btn {
+  width: 88rpx;
+  height: 76rpx;
+  border-radius: 14rpx;
+  background: #F4F6FB;
+  border: 1rpx solid #ECEFF5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36rpx;
+  color: #4A5164;
+  flex: none;
+}
+.step-hover { background: #E8EDF7; }
+.step-input {
+  flex: 1;
+  text-align: center;
+  height: 76rpx;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+/* 给底部悬浮按钮留出空间 */
+.foot-space { height: 150rpx; }

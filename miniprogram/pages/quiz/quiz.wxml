@@ -1,0 +1,177 @@
+<view class="quiz-page" wx:if="{{ready}}">
+  <!-- 顶栏 -->
+  <view class="top">
+    <view class="row between">
+      <view class="row">
+        <text class="tag tag-brand">{{modeTag}}</text>
+        <text class="weak" style="margin-left:12rpx;">第 {{idx}}/{{total}} 题 · 已答 {{done}}</text>
+      </view>
+      <view class="row">
+        <text class="top-btn {{marked?'top-btn-on':''}}" bindtap="toggleMark">{{marked ? '已标记' : '标记'}}</text>
+        <text class="top-btn" bindtap="openSheet">答题卡</text>
+        <text class="top-btn" bindtap="exit">退出</text>
+      </view>
+    </view>
+    <!-- 自定义练习：把本次抽题的范围一直摆在明面上，避免忘了自己在练哪一批 -->
+    <view class="weak mt8 ellipsis" wx:if="{{customScope}}">范围：{{customScope}}</view>
+    <view class="progress-track mt8">
+      <view class="progress-fill" style="width:{{progress}}%;"></view>
+    </view>
+  </view>
+
+  <!-- 题目区 -->
+  <scroll-view class="body" scroll-y>
+    <view class="q-card">
+      <view class="row">
+        <text class="q-no">{{cur.no}}</text>
+        <text class="tag {{cur.type==='multi'?'tag-brand':cur.type==='judge'?'tag-green':cur.type==='text'?'tag-orange':'tag-gray'}}">{{cur.typeLabel}}</text>
+        <text class="tag tag-gray ellipsis" wx:if="{{cur.from}}" style="max-width:280rpx;margin-left:8rpx;">{{cur.from}}</text>
+        <view class="flex1"></view>
+        <text class="fix-btn {{cur.hasKey ? '' : 'fix-btn-on'}}" bindtap="openAnswerSheet">{{cur.hasKey ? '改答案' : '补答案'}}</text>
+        <text class="fix-btn {{errated ? 'fix-btn-on' : ''}}" style="margin-left:12rpx;" bindtap="openErrata">{{errated ? '已记纠错' : '纠错'}}</text>
+      </view>
+
+      <!-- 没有标准答案：把补录入口摆在显眼处，而不是只留右上角一个小按钮 -->
+      <view class="nokey-bar" wx:if="{{!cur.hasKey && !isReview}}">
+        <text class="nokey-text">这道题没有标准答案，暂时只能自评</text>
+        <text class="nokey-btn" bindtap="openAnswerSheet">补答案</text>
+      </view>
+
+      <!-- 错题本历史（回顾错题时显示） -->
+      <view class="wb-bar" wx:if="{{wb}}">
+        <text class="tag tag-red" wx:if="{{wb.hard}}">易错题</text>
+        <text class="tag tag-green" wx:if="{{wb.mastered}}">已掌握</text>
+        <text class="wb-text">历史作答 {{wb.attempts}} 次 · 答错 {{wb.wrongCount}} 次 · 错率 {{wb.errRate}}%</text>
+      </view>
+      <!-- 题干 / 选项 / 答案 / 解析一律给 user-select：长文本能长按复制（查资料、记笔记靠它），
+           顺带消掉控制台那条「text 组件包含长文本，可考虑增加 user-select」的提示。
+           用 text 不用 view（user-select 只对 text 生效），靠 wxss 里的 display:block 保住块级排版。 -->
+      <text class="q-stem mt16" user-select>{{cur.stem}}</text>
+
+      <!-- 选项 -->
+      <view class="opts mt24" wx:if="{{options.length}}">
+        <view class="opt {{item.cls}}" wx:for="{{options}}" wx:key="key"
+          bindtap="tapOption" data-key="{{item.key}}" hover-class="{{answered?'':'opt-hover'}}">
+          <view class="opt-key">{{item.key}}</view>
+          <text class="opt-text" user-select>{{item.text}}</text>
+        </view>
+      </view>
+
+      <!-- 主观题：查看参考答案入口 -->
+      <view class="reveal-area mt24" wx:if="{{showReveal}}">
+        <view class="reveal-tip">本题为{{cur.type==='text' ? '问答题' : '无标准答案题'}}，请自行作答后对照参考答案。</view>
+      </view>
+
+      <!-- 参考答案/解析 -->
+      <block wx:if="{{answered || revealNow}}">
+        <view class="result mt24">
+          <!-- 判定横幅（非背题模式） -->
+          <view class="banner banner-ok" wx:if="{{answered && !isReview && isCorrect}}">
+            <text class="banner-ico">✓</text>回答正确
+          </view>
+          <view class="banner banner-bad" wx:if="{{answered && !isReview && !isCorrect && manualDone}}">
+            <text class="banner-ico">✕</text>回答错误
+          </view>
+          <view class="banner banner-mid" wx:if="{{answered && !isReview && !isCorrect && !manualDone}}">
+            暂无标准答案，请对照下方参考答案自评
+          </view>
+          <view class="banner banner-master" wx:if="{{justMastered}}">
+            已连续答对 {{masterStreak}} 次，本题归入「已掌握」
+          </view>
+
+          <!-- 参考答案 -->
+          <view class="ans-box" wx:if="{{answerText}}">
+            <view class="ans-title">参考答案</view>
+            <text class="ans-content" user-select>{{answerText}}</text>
+            <!-- 答案用不上时说清楚原因，别让人以为答案是错的 -->
+            <view class="weak mt8" wx:if="{{cur.answerSuspectKind === 'missingOption'}}">
+              这道题有选项在录入时缺失，标准答案（{{answerText}}）对不上现有选项，已改为自评，可在「补答案」里核对。
+            </view>
+            <view class="weak mt8" wx:elif="{{cur.answerSuspectKind === 'typeConflict'}}">
+              标准答案写的是「{{answerText}}」，但这道题有 {{options.length}} 个选项 —— 两者对不上（判断题只有两种状态）。
+              多半是答案解析文件选错了，或答案在配题时串了位，已改为自评。建议核对答案文件后重新生成题库。
+            </view>
+          </view>
+
+          <!-- 解析 -->
+          <view class="explain-box" wx:if="{{explanation}}">
+            <view class="explain-title">解析</view>
+            <text class="explain-content" user-select>{{explanation}}</text>
+          </view>
+          <view class="weak mt8" wx:if="{{answered && !explanation}}">本题未提供解析</view>
+        </view>
+      </block>
+
+      <!-- 底部留白 -->
+      <view style="height:20rpx;"></view>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作 -->
+  <view class="foot">
+    <!-- 主操作 -->
+    <view class="foot-main" wx:if="{{showReveal}}">
+      <button class="btn btn-primary" bindtap="toggleReveal">查看参考答案</button>
+    </view>
+    <view class="foot-main" wx:elif="{{showSelfJudge}}">
+      <button class="btn btn-success" bindtap="judgeSelf" data-ok="1">{{isReview ? '记住了' : '记对了'}}</button>
+      <button class="btn btn-danger" bindtap="judgeSelf" data-ok="0">{{isReview ? '没记住' : '记错了'}}</button>
+    </view>
+    <view class="foot-main" wx:elif="{{!answered && options.length && !isReview}}">
+      <button class="btn btn-primary" bindtap="confirmAnswer">确认答案</button>
+    </view>
+    <view class="foot-main" wx:elif="{{!answered && !isReview}}">
+      <button class="btn btn-primary" bindtap="toggleReveal">查看参考答案</button>
+    </view>
+
+    <!-- 导航 -->
+    <view class="foot-nav">
+      <button class="nav-btn" bindtap="prev" disabled="{{idx<=1}}">上一题</button>
+      <button class="nav-btn" bindtap="openSheet">答题卡</button>
+      <button class="nav-btn nav-next" bindtap="next">{{idx < total ? '下一题' : '交卷'}}</button>
+    </view>
+  </view>
+</view>
+
+<!-- 答题卡 -->
+<view class="mask" wx:if="{{sheet.show}}" bindtap="closeSheet"></view>
+<view class="sheet sheet-card" wx:if="{{sheet.show}}">
+  <view class="sheet-handle"></view>
+  <view class="sheet-title">答题卡</view>
+  <view class="legend row mt16">
+    <text class="lg lg-right">已答对</text>
+    <text class="lg lg-wrong">答错</text>
+    <text class="lg lg-done">已答</text>
+    <text class="lg lg-cur">当前</text>
+    <text class="lg lg-blank">未答</text>
+    <text class="lg lg-marked">已标记</text>
+  </view>
+  <scroll-view class="card-scroll" scroll-y>
+    <view class="grid">
+      <view class="cell {{item.cls}}" wx:for="{{sheet.grid}}" wx:key="uid" bindtap="jumpTo" data-i="{{item.i}}">
+        <view class="cell-mk" wx:if="{{item.mk}}"></view>{{item.num}}
+      </view>
+    </view>
+  </scroll-view>
+  <view class="sheet-foot">
+    <view class="jump-row">
+      <text class="weak">跳到第</text>
+      <input class="jump-input" type="number" value="{{jumpNo}}" bindinput="onJumpInput"
+        confirm-type="go" bindconfirm="doJump" placeholder="{{state.idx + 1}}" />
+      <text class="weak">题 / 共 {{total}} 题</text>
+      <button class="btn btn-mini btn-plain" bindtap="doJump">跳转</button>
+    </view>
+    <view class="between mt8">
+      <text class="weak">已作答 {{done}}/{{total}} · 已标记 {{sheet.marked}}</text>
+      <button class="btn btn-mini btn-primary" bindtap="closeSheet">返回做题</button>
+    </view>
+  </view>
+</view>
+
+<!-- 校对编辑面板 -->
+<errata-sheet show="{{er.show}}" setId="{{er.setId}}" title="{{er.title}}" question="{{er.question}}"
+  bind:close="closeErrata" bind:saved="onErrataSaved"></errata-sheet>
+
+<!-- 答案补全面板 -->
+<answer-sheet show="{{ans.show}}" setId="{{ans.setId}}" title="{{ans.title}}" question="{{ans.question}}"
+  bind:close="closeAnswerSheet" bind:saved="onAnswerSaved"></answer-sheet>

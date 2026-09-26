@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "校对清单",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "errata-sheet": "/components/errata-sheet/index"
+  }
+}

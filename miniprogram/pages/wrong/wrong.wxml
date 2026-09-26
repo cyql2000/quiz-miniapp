@@ -1,0 +1,121 @@
+<view class="page wrong {{setId && groups.length ? 'has-footer' : ''}}">
+  <!-- 汇总 -->
+  <view class="card sum-card">
+    <view class="between">
+      <view class="row">
+        <view class="dot"></view>
+        <text class="title-md">错题回顾</text>
+      </view>
+      <text class="weak ellipsis" style="max-width:300rpx;">{{scopeTitle}}</text>
+    </view>
+    <view class="sum-row mt16">
+      <view class="sum-item">
+        <view class="sum-num red">{{sum.hard}}</view>
+        <view class="sum-label">易错题</view>
+      </view>
+      <view class="sum-item">
+        <view class="sum-num">{{sum.pending}}</view>
+        <view class="sum-label">待攻克</view>
+      </view>
+      <view class="sum-item">
+        <view class="sum-num green">{{sum.mastered}}</view>
+        <view class="sum-label">已掌握</view>
+      </view>
+      <view class="sum-item">
+        <view class="sum-num gray">{{sum.sets}}</view>
+        <view class="sum-label">涉及题库</view>
+      </view>
+    </view>
+    <view class="weak mt8">错题连续答对 2 次自动归入「已掌握」</view>
+  </view>
+
+  <!-- 题库筛选 -->
+  <scroll-view class="chips" scroll-x enable-flex wx:if="{{setFilter.length > 2}}">
+    <view class="chip {{setId === item.setId ? 'chip-on' : ''}}" wx:for="{{setFilter}}" wx:key="setId"
+      bindtap="switchSet" data-id="{{item.setId}}">
+      <text class="chip-text">{{item.title}}</text>
+      <text class="chip-badge" wx:if="{{item.count}}">{{item.count}}</text>
+    </view>
+  </scroll-view>
+
+  <!-- 视图切换 -->
+  <view class="tabs">
+    <view class="tab {{tab === item.key ? 'tab-on' : ''}}" wx:for="{{tabs}}" wx:key="key"
+      bindtap="changeTab" data-tab="{{item.key}}">
+      <text>{{item.label}}</text>
+      <text class="tab-count" wx:if="{{item.count}}">{{item.count}}</text>
+    </view>
+  </view>
+
+  <!-- 空态 -->
+  <view class="empty card" wx:if="{{!groups.length}}">
+    <view class="empty-box"></view>
+    <view class="empty-title">{{emptyTip}}</view>
+    <view class="empty-desc" wx:if="{{tab !== 'mastered'}}">答题过程中答错的题目会自动收录进错题本</view>
+    <button class="btn btn-ghost mt24" bindtap="goHome">去刷题</button>
+  </view>
+
+  <!-- 分组列表 -->
+  <block wx:for="{{groups}}" wx:for-item="group" wx:key="setId">
+    <view class="group-head" wx:if="{{!setId}}">
+      <text class="group-title ellipsis flex1">{{group.title}}</text>
+      <text class="weak">{{group.count}} 题</text>
+    </view>
+
+    <view class="item card" wx:for="{{group.items}}" wx:key="key">
+      <view class="between">
+        <view class="row flex1">
+          <text class="q-no">{{item.no}}</text>
+          <text class="tag tag-gray">{{item.typeLabel}}</text>
+          <text class="tag tag-red ml8" wx:if="{{item.hard}}">易错</text>
+          <text class="tag tag-green ml8" wx:if="{{item.mastered}}">已掌握</text>
+        </view>
+        <text class="weak">错 {{item.wrongCount}} 次</text>
+      </view>
+
+      <view class="item-meta mt8">
+        作答 {{item.attempts}} 次 · 答对 {{item.rightCount}} · 错率 {{item.errRate}}%
+        <text wx:if="{{item.lastWrongText}}"> · 最近答错 {{item.lastWrongText}}</text>
+      </view>
+
+      <view class="stem mt8 {{item.expanded ? '' : 'ellipsis-2'}}">{{item.stem}}</view>
+
+      <block wx:if="{{item.expanded}}">
+        <view class="ans-box mt16" wx:if="{{item.answerKey || item.answer}}">
+          <view class="box-title">参考答案</view>
+          <view class="ans-content">{{item.answerKey ? item.answerKey : item.answer}}</view>
+        </view>
+        <view class="mine-box mt8" wx:if="{{item.lastSelected}}">
+          <text>上次作答：</text>
+          <text class="mine">{{item.lastSelected}}</text>
+        </view>
+        <view class="explain-box mt8" wx:if="{{item.explanation}}">
+          <view class="box-title">解析</view>
+          <view class="explain-content">{{item.explanation}}</view>
+        </view>
+        <view class="weak mt8" wx:if="{{!item.explanation}}">本题未提供解析</view>
+      </block>
+
+      <view class="acts mt16">
+        <text class="act" bindtap="toggleItem" data-key="{{item.key}}">{{item.expanded ? '收起' : '查看答案解析'}}</text>
+        <view class="flex1"></view>
+        <text class="act act-brand" bindtap="retrainItem" data-sid="{{item.setId}}" data-no="{{item.no}}">重练本题</text>
+        <text class="act act-ok" wx:if="{{!item.mastered}}" bindtap="markMastered" data-sid="{{item.setId}}" data-no="{{item.no}}">标记掌握</text>
+        <text class="act act-plain" wx:else bindtap="unmarkMastered" data-sid="{{item.setId}}" data-no="{{item.no}}">移回待攻克</text>
+        <text class="act act-del" bindtap="removeItem" data-sid="{{item.setId}}" data-no="{{item.no}}">移出</text>
+      </view>
+    </view>
+
+    <button class="btn btn-mini btn-ghost group-foot" wx:if="{{!setId}}" bindtap="retrainGroup" data-id="{{group.setId}}">
+      {{tab === 'hard' ? '攻克该题库易错题' : '重练该题库错题'}}（{{group.count}}）
+    </button>
+  </block>
+</view>
+
+<!-- 底部操作 -->
+<view class="footer-bar" wx:if="{{setId && groups.length}}">
+  <button class="btn btn-plain" bindtap="clearScope">清空</button>
+  <button class="btn btn-primary" bindtap="retrainScope">
+    {{tab === 'hard' ? '攻克易错题' : '重练错题'}}（{{groups[0].count}}）
+  </button>
+</view>
