@@ -1,5 +1,28 @@
 .index { padding-bottom: 60rpx; }
 
+/* ---------- 题库操作弹层：头部固定 + 正文整条可滚 ----------
+   页面里的 .sheet（app.wxss）只给了 max-height，没有滚动容器，
+   选项一多就整块溢出屏幕、滚轮还会穿透到后面的题库列表。
+   这里把它覆盖成 flex，正文交给 scroll-view 吃掉滚动。
+   **不做固定底栏**：固定底栏会盖住滚动区里还没滚到的内容（真机复现过），
+   删除和取消跟其他项一起滚，滚到底自然看得到。 */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;   /* 兜住任何越界内容，别画到面板外面 */
+  max-height: 82vh;
+}
+.sheet-head { flex: none; }
+/* 高度由 js 算成 px 写进 style（bodyH）并 flex:none —— 见 WXML 里的说明。
+   这里的两条只是测量完成前的兜底，真机上以 style 为准。 */
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  margin-top: 24rpx;
+}
+.sheet-inner { padding-bottom: 8rpx; }
+.sheet-body-pad { height: 8rpx; }
+
 .hero { padding: 12rpx 8rpx 20rpx; }
 
 .continue-card { position: relative; overflow: hidden; }

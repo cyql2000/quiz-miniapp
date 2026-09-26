@@ -129,14 +129,29 @@
 
 <!-- 模式选择弹层 -->
 <view class="mask" wx:if="{{sheet.show}}" bindtap="closeSheet"></view>
-<view class="sheet" wx:if="{{sheet.show}}">
-  <view class="sheet-handle"></view>
-  <view class="sheet-title">{{sheet.title}}</view>
-  <view class="weak center" style="text-align:center;margin-top:4rpx;">共 {{sheet.total}} 题</view>
-  <view class="weak center" style="text-align:center;" wx:if="{{sheet.wrongCount || sheet.masteredCount}}">
-    错题本：待攻克 {{sheet.wrongCount}} · 易错 {{sheet.hardCount}} · 已掌握 {{sheet.masteredCount}}
+<!--
+  弹层结构：头部固定 + 正文整条可滚（含删除/取消）。
+  删除和取消**不做固定底栏** —— 固定底栏会盖住滚动区里还没滚到的内容
+  （真机复现：「导出该题库」被压在底栏下）。所以整条一起滚，滚到底自然看到删除和取消。
+
+  **正文区高度必须是 js 算出来的 px（bodyH）**：小程序里 flex 推导出来的高度
+  等于"内容撑出来的高度"，scroll-view 就永远不溢出、永远不滚 ——
+  滚轮事件照样冒泡穿透到后面的首页题库列表（真机复现过两轮）。
+  sheet-inner 只是内容自然高度的量尺，js 用它决定要不要夹紧。
+-->
+<view class="sheet" wx:if="{{sheet.show}}" catchtap="noop" catchtouchmove="noop">
+  <view class="sheet-head">
+    <view class="sheet-handle"></view>
+    <view class="sheet-title">{{sheet.title}}</view>
+    <view class="weak" style="text-align:center;margin-top:4rpx;">共 {{sheet.total}} 题</view>
+    <view class="weak" style="text-align:center;" wx:if="{{sheet.wrongCount || sheet.masteredCount}}">
+      错题本：待攻克 {{sheet.wrongCount}} · 易错 {{sheet.hardCount}} · 已掌握 {{sheet.masteredCount}}
+    </view>
   </view>
-  <view class="mt24">
+
+  <scroll-view class="sheet-body" scroll-y
+    style="{{bodyH ? 'height:' + bodyH + 'px;flex:none;' : ''}}">
+    <view class="sheet-inner">
     <button class="btn btn-primary mt16" wx:if="{{sheet.hasProgress}}" bindtap="chooseMode" data-mode="continue">继续上次练习（已完成 {{sheet.progress}}%）</button>
     <button class="btn btn-ghost mt16" bindtap="chooseMode" data-mode="order">顺序练习</button>
     <button class="btn btn-ghost mt16" bindtap="chooseMode" data-mode="random">随机练习</button>
@@ -156,5 +171,8 @@
     <button class="btn btn-plain mt16" bindtap="exportOne" data-id="{{sheet.setId}}">导出该题库（含错题本与校对记录）</button>
     <button class="btn btn-danger-ghost mt16" bindtap="deleteSet" data-id="{{sheet.setId}}">删除该题库</button>
     <button class="btn btn-plain mt16" bindtap="closeSheet">取消</button>
-  </view>
+    <!-- 滚动到底部留一点白，最后一条不贴边 -->
+    <view class="sheet-body-pad"></view>
+    </view>
+  </scroll-view>
 </view>

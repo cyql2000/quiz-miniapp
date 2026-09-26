@@ -1,4 +1,5 @@
-const { formatTime } = require('../../utils/util');
+const util = require('../../utils/util');
+const { formatTime, sheetBodyHeightOf } = util;
 const store = require('../../utils/progress');
 const wrongbook = require('../../utils/wrongbook');
 const errata = require('../../utils/errata');
@@ -33,12 +34,42 @@ Page({
       hardCount: 0,
       masteredCount: 0,
       stateLabel: '浏览全部题目'
-    }
+    },
+    // 弹层正文区高度（px），由 js 算好后写进 scroll-view 的 style，见 measureSheet。
+    // 为什么非要算死：flex 推导出的高度等于内容高，scroll-view 永不溢出、永不可滚，
+    // 滚轮就会穿透到下面的首页列表（真机复现过两轮）。
+    bodyH: 0
   },
 
   onShow() {
     this.refresh();
   },
+
+  // ---------- 弹层布局：把正文区高度算成确定的 px ----------
+  measureSheet() {
+    let info = {};
+    try {
+      info = (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()) || {};
+    } catch (e) {
+      info = {};
+    }
+    const winH = info.windowHeight || 0;
+    const winW = info.windowWidth || 750;
+    if (!winH || !wx.createSelectorQuery) return;
+    const safeBottom = (info.safeArea && info.safeArea.bottom)
+      ? Math.max(0, winH - info.safeArea.bottom) : 0;
+    const q = wx.createSelectorQuery().in(this);
+    q.select('.sheet-head').boundingClientRect();
+    q.select('.sheet-inner').boundingClientRect();
+    q.exec((res) => {
+      const r = res || [];
+      const headH = (r[0] && r[0].height) || 0;
+      const innerH = (r[1] && r[1].height) || 0;
+      const h = util.sheetBodyHeightOf({ winH, winW, headH, innerH, safeBottom });
+      if (h) this.setData({ bodyH: h });
+    });
+  },
+
 
   async refresh() {
     this.setData({ loading: true });
@@ -171,6 +202,9 @@ Page({
     wx.switchTab({ url: '/pages/files/files' });
   },
 
+  // 阻止面板内的点击冒泡到遮罩（否则滚动区里点一下就把弹层关了）
+  noop() { /* no-op */ },
+
   // 题库管理：一次看全 + 批量收拾（首页只摊开最近几份）
   goManage() {
     wx.navigateTo({ url: '/pages/manage/manage' });
@@ -205,8 +239,9 @@ Page({
         wrongLabel: ws.pending || ws.mastered
           ? `（待攻克 ${ws.pending} · 易错 ${ws.hard}）`
           : '（暂无记录）'
-      }
-    });
+      },
+      bodyH: 0   // 先清零，渲染完按实测高度重算（见 measureSheet）
+    }, () => this.measureSheet());
   },
 
   closeSheet() {

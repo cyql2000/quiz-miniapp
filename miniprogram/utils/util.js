@@ -94,4 +94,29 @@ function boxOf(text, maxLines) {
   return { h: BOX_PAD_V + shown * BOX_LINE_H, over: lines > cap };
 }
 
-module.exports = { pad, formatTime, formatSize, extOf, fileTypeLabel, guessFileRole, sortLetters, formatDuration, nextAvailableName, boxOf, BOX_LINE_H, BOX_PAD_V };
+// 弹层正文区高度（px）。纯计算，方便离线断言。
+//
+// 为什么非要算成确定的 px：小程序里 `flex: 1` 推导出来的高度**不会让 scroll-view 真正可滚**
+// —— 高度是"内容撑出来的"时它等于内容高，没有溢出就没有滚动，滚轮事件会继续冒泡到
+// 下面那层正在滚动的页面（首页题库列表），看着就是"滚错了地方"。
+// 只有写死成 px、且小于内容自然高，scroll-view 才会自己承接滚动。
+//
+// 取 min(内容自然高, 可用高)：内容少就矮面板，内容多就在框内滚。
+// 可用高 = 面板上限(82vh) - 头部实测高 - 面板固定开销 - 底部安全区。
+// 固定开销按 rpx 折算（750rpx = 屏宽）：
+//   上内边距 24 + 手柄下间距 20 + 正文上间距 24 + 下内边距 32 = 100rpx
+function sheetBodyHeightOf(box) {
+  const b = box || {};
+  const winH = Number(b.winH) || 0;
+  if (!winH) return 0;
+  const W = (Number(b.winW) || 750) / 750;
+  const sheetMax = winH * 0.82;
+  const fixedH = 100 * W + (Number(b.headH) || 0) + (Number(b.safeBottom) || 0);
+  const avail = Math.max(120, sheetMax - fixedH);
+  const innerH = Number(b.innerH) || 0;
+  // innerH 为 0 = 还没量到（首帧），这时按可用高给，别让面板塌成一条
+  const h = innerH > 0 ? Math.min(innerH, avail) : avail;
+  return Math.max(0, Math.ceil(h));
+}
+
+module.exports = { pad, formatTime, formatSize, extOf, fileTypeLabel, guessFileRole, sortLetters, formatDuration, nextAvailableName, boxOf, BOX_LINE_H, BOX_PAD_V, sheetBodyHeightOf };
