@@ -1,0 +1,61 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/manage/manage",
+    "pages/wrong/wrong",
+    "pages/errata/errata",
+    "pages/files/files",
+    "pages/generate/generate",
+    "pages/preview/preview",
+    "pages/custom/custom",
+    "pages/quiz/quiz",
+    "pages/result/result",
+    "pages/review/review"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "轻刷题",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F4F6FB",
+    "backgroundTextStyle": "light"
+  },
+  "tabBar": {
+    "color": "#9AA1B2",
+    "selectedColor": "#3E6BF0",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "刷题"
+      },
+      {
+        "pagePath": "pages/wrong/wrong",
+        "text": "错题本"
+      },
+      {
+        "pagePath": "pages/files/files",
+        "text": "文件库"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "agent": {
+    "skills": [
+      {
+        "name": "quiz-helper",
+        "description": "查询本机题库与刷题进度、错题本、校对清单，并可随机抽题生成一组练习送进答题页",
+        "path": "skills/quiz-helper"
+      }
+    ]
+  },
+  "subPackages": [
+    {
+      "root": "skills",
+      "independent": true,
+      "pages": []
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "apis": [
+    {
+      "name": "listSets",
+      "description": "查看本机全部题库，返回每个题库的名称、题量、解析匹配数、最近练习进度、待攻克错题数与标记题数。用户问“我有哪些题库 / 一共多少题 / 某本书练到哪了”时调用。",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "total": { "type": "number", "description": "题库数量" },
+          "totalQuestions": { "type": "number", "description": "全部题库的题目总数" },
+          "sets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "setId": { "type": "string" },
+                "title": { "type": "string" },
+                "questionCount": { "type": "number" },
+                "matchedCount": { "type": "number" },
+                "answerFile": { "type": "boolean", "description": "是否配了解析答案文件" },
+                "timeText": { "type": "string" },
+                "done": { "type": "number" },
+                "progress": { "type": "number" },
+                "wrongCount": { "type": "number" },
+                "hardCount": { "type": "number" },
+                "markedCount": { "type": "number" }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "getStudyOverview",
+      "description": "查看学习总览：累计已答题数、整体正确率、错题本合计（待攻克/易错/已掌握）、标记题合计、待修校对记录数，以及最近一次未完成的练习。用户问“我练得怎么样 / 正确率多少 / 还有多少错题没攻克”时调用。",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "setCount": { "type": "number" },
+          "totalQuestions": { "type": "number" },
+          "answered": { "type": "number" },
+          "correct": { "type": "number" },
+          "rate": { "type": "number", "description": "正确率百分比（整数）" },
+          "wrongbook": { "type": "object" },
+          "errata": { "type": "object" },
+          "marks": { "type": "object" },
+          "recent": { "type": "object" }
+        }
+      }
+    },
+    {
+      "name": "listWrongItems",
+      "description": "查看错题本里的题目，返回题干、选项答案、解析、错误次数、错率与掌握状态。可按题库筛选，也可切换视图：hard=易错题（错过 2 次以上）、pending=待攻克、mastered=已掌握。用户问“我错了哪些题 / 有哪些易错题 / 某道错题的答案是什么”时调用。",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "setId": { "type": "string", "description": "只查某个题库的错题；不传表示全部题库" },
+          "filter": {
+            "type": "string",
+            "enum": ["hard", "pending", "mastered"],
+            "description": "视图：hard 易错题 / pending 待攻克（默认）/ mastered 已掌握"
+          },
+          "limit": { "type": "number", "description": "最多返回多少道题，默认 20，上限 100" }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "scopeTitle": { "type": "string" },
+          "tab": { "type": "string" },
+          "tabLabel": { "type": "string" },
+          "counts": { "type": "object" },
+          "sum": { "type": "object" },
+          "total": { "type": "number" },
+          "shown": { "type": "number" },
+          "groups": { "type": "array" }
+        }
+      }
+    },
+    {
+      "name": "listErrataItems",
+      "description": "查看刷题时记录下来的校对（勘误）清单，按原值 ↔ 修正值对照展示，可切换待修 / 已修 / 全部。用户问“我标记了哪些题目有问题 / 待修的校对有哪些”时调用。",
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "setId": { "type": "string", "description": "只查某个题库的校对记录；不传表示全部题库" },
+          "filter": {
+            "type": "string",
+            "enum": ["open", "fixed", "all"],
+            "description": "视图：open 待修（默认）/ fixed 已修 / all 全部"
+          },
+          "limit": { "type": "number", "description": "最多返回多少条，默认 20，上限 100" }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "scopeTitle": { "type": "string" },
+          "tab": { "type": "string" },
+          "tabLabel": { "type": "string" },
+          "counts": { "type": "object" },
+          "sum": { "type": "object" },
+          "total": { "type": "number" },
+          "shown": { "type": "number" },
+          "groups": { "type": "array" }
+        }
+      }
+    },
+    {
+      "name": "createPracticePlan",
+      "description": "准备一组练习题并把用户送进答题页。source=wrong/hard/marked 时从错题本或标记清单里随机抽 count 道题（默认 20），抽完顺序随机、每次不同；source=set 时必须给 setId，表示该题库整库随机练习，此时 count 不生效。返回后需用户点击卡片进入小程序开始作答。",
+      "_meta": {
+        "ui": {
+          "pagePath": "/pages/quiz/quiz"
+        }
+      },
+      "inputSchema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": ["wrong", "hard", "marked", "set"],
+            "description": "题源：wrong 待攻克错题 / hard 易错题 / marked 标记题 / set 指定题库整库随机"
+          },
+          "setId": { "type": "string", "description": "限定题库；source=set 时必填" },
+          "count": { "type": "number", "description": "抽多少题，默认 20，上限 200；source=set 时忽略" }
+        },
+        "required": ["source"]
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "source": { "type": "string" },
+          "setId": { "type": "string" },
+          "title": { "type": "string" },
+          "scope": { "type": "string" },
+          "count": { "type": "number" },
+          "poolSize": { "type": "number" },
+          "questionCount": { "type": "number" },
+          "itemsPreview": { "type": "array" },
+          "handoffPath": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

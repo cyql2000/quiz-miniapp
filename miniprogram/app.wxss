@@ -1,0 +1,145 @@
+/* ===== 轻刷题 全局样式 ===== */
+page {
+  --brand: #3E6BF0;
+  --brand-light: #EAF0FE;
+  --success: #12A15D;
+  --danger: #F04242;
+  --warn: #E8A13A;
+  --text: #1E2433;
+  --text-sub: #6C7384;
+  --text-weak: #9AA1B2;
+  --bg: #F4F6FB;
+  --card: #FFFFFF;
+  --line: #ECEFF5;
+
+  background: var(--bg);
+  color: var(--text);
+  font-size: 28rpx;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+}
+
+view, text, scroll-view, button, input, textarea, image { box-sizing: border-box; }
+
+.page {
+  min-height: 100vh;
+  padding: 24rpx 24rpx 40rpx;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(30, 36, 51, 0.04);
+}
+
+/* 按钮体系 */
+.btn {
+  border-radius: 16rpx;
+  font-size: 30rpx;
+  line-height: 1;
+  text-align: center;
+  padding: 0 40rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+}
+.btn::after { border: none; }
+.btn-primary { background: var(--brand); color: #fff; }
+.btn-primary.btn-hover { background: #2F57D4; }
+.btn-primary[disabled] { background: #B9C8F6; color: #fff; }
+.btn-ghost { background: var(--brand-light); color: var(--brand); }
+.btn-ghost.btn-hover { background: #DCE7FD; }
+.btn-plain { background: #fff; color: var(--text-sub); border: 1rpx solid var(--line); }
+.btn-danger-ghost { background: #FDEDED; color: var(--danger); }
+.btn-mini {
+  height: 60rpx;
+  padding: 0 24rpx;
+  font-size: 24rpx;
+  border-radius: 12rpx;
+  display: inline-flex;
+}
+
+/* 文本 */
+.title-lg { font-size: 40rpx; font-weight: 600; }
+.title-md { font-size: 32rpx; font-weight: 600; }
+.sub { color: var(--text-sub); font-size: 26rpx; }
+.weak { color: var(--text-weak); font-size: 24rpx; }
+.ellipsis { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ellipsis-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 标签 */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2rpx 14rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+.tag-brand { background: var(--brand-light); color: var(--brand); }
+.tag-green { background: #E5F6EE; color: var(--success); }
+.tag-red { background: #FDEBEB; color: var(--danger); }
+.tag-gray { background: #F0F2F7; color: var(--text-sub); }
+.tag-orange { background: #FCF1E0; color: var(--warn); }
+
+/* 工具 */
+.row { display: flex; align-items: center; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+.flex1 { flex: 1; min-width: 0; }
+.mt8 { margin-top: 8rpx; }
+.mt16 { margin-top: 16rpx; }
+.mt24 { margin-top: 24rpx; }
+.mb16 { margin-bottom: 16rpx; }
+.divider { height: 1rpx; background: var(--line); margin: 20rpx 0; }
+
+/* 通用空态 */
+.empty { padding: 100rpx 40rpx; text-align: center; }
+.empty .empty-title { font-size: 30rpx; color: var(--text-sub); margin-top: 20rpx; }
+.empty .empty-desc { font-size: 24rpx; color: var(--text-weak); margin-top: 8rpx; }
+
+/* 底部悬浮主操作 */
+.footer-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  padding: 16rpx 24rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  box-shadow: 0 -6rpx 20rpx rgba(30, 36, 51, 0.05);
+  display: flex;
+  gap: 20rpx;
+  z-index: 20;
+}
+.footer-bar .btn { flex: 1; }
+
+/* 遮罩弹层 */
+.mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 34, 0.45);
+  z-index: 100;
+}
+.sheet {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  background: #fff;
+  border-radius: 28rpx 28rpx 0 0;
+  padding: 24rpx 24rpx calc(32rpx + env(safe-area-inset-bottom));
+  z-index: 101;
+  max-height: 82vh;
+}
+.sheet-handle {
+  width: 72rpx; height: 8rpx;
+  background: #E4E8F0;
+  border-radius: 8rpx;
+  margin: 0 auto 20rpx;
+}
+.sheet-title { font-size: 32rpx; font-weight: 600; text-align: center; }
