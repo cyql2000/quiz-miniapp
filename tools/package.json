@@ -1,0 +1,14 @@
+{
+  "name": "quiz-miniapp-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "电脑端辅助脚本：PDF/Word 转 txt、解析引擎同步（不属于小程序包）",
+  "scripts": {
+    "to-txt": "node to-txt.js",
+    "sync-parser": "node sync-parser.js"
+  },
+  "dependencies": {
+    "mammoth": "^1.6.0",
+    "pdf-parse": "^1.1.1"
+  }
+}
