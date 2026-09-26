@@ -1,0 +1,19 @@
+# 依赖（tools 脚本用，按需在 tools/ 下 npm install）
+node_modules/
+
+# 微信开发者工具的个人配置：含个人设置，不应入库
+project.private.config.json
+
+# 测试产生的临时文件
+_smoke/.lint-fixture.js
+
+# 日志
+*.log
+npm-debug.log*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+.ai-mode-skills/
+.workbuddy/

@@ -1,0 +1,11 @@
+{
+  "name": "generateSet",
+  "version": "1.0.0",
+  "description": "解析试题与答案解析文件，生成题库",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "~2.6.3",
+    "pdf-parse": "^1.1.1",
+    "mammoth": "^1.6.0"
+  }
+}
