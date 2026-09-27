@@ -30,19 +30,25 @@
 
 ## 二、界面预览
 
-> 📷 截图待补。建议在这一节放 7 张图（横向排列或 2×3 网格）：
->
-> | # | 界面 | 展示什么 |
-> |---|---|---|
-> | 1 | 首页 | 继续刷题卡片、题库列表、「数据备份」卡片（含本机占用） |
-> | 2 | 答题页 | 题目 + 选项 + 作答后的判定与解析展开、题卡右上角「纠错」 |
-> | 3 | 错题本 | 易错题视图、错误次数标签、展开后的题干与上次作答 |
-> | 4 | 校对清单 | 原值 ↔ 修正值上下对照 |
-> | 5 | 文件库 | 文件列表、「本机已保存 / 端上不可解析」标签、占用统计 |
-> | 6 | 生成向导 | 选择试题 + 答案解析两个槽位 |
-> | 7 | 自定义练习 | 范围与题量的联动、顶部「当前设定」摘要 |
->
-> 截图建议用微信开发者工具的「截图」或真机截图，宽度统一。放好后把这一节的说明文字删掉即可。
+<table>
+  <tr>
+    <td align="center" width="33%"><img src="assets/screenshots/01-home.png" width="100%" alt="首页"><br><b>首页</b><br><sub>继续刷题卡片、题库列表、数据备份与本机占用</sub></td>
+    <td align="center" width="33%"><img src="assets/screenshots/02-quiz.png" width="100%" alt="答题页"><br><b>答题页</b><br><sub>作答后即时判定，参考答案与解析展开</sub></td>
+    <td align="center" width="33%"><img src="assets/screenshots/03-wrong.png" width="100%" alt="错题本"><br><b>错题本</b><br><sub>易错题分组、错误次数标签、上次作答</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="assets/screenshots/04-errata.png" width="100%" alt="校对清单"><br><b>校对清单</b><br><sub>原值 ↔ 修正值上下对照，已修 / 待修分流</sub></td>
+    <td align="center" width="33%"><img src="assets/screenshots/05-file.png" width="100%" alt="文件库"><br><b>文件库</b><br><sub>文件分类标签、占用统计、导入入口</sub></td>
+    <td align="center" width="33%"><img src="assets/screenshots/06-generate.png" width="100%" alt="生成向导"><br><b>生成向导</b><br><sub>试题 + 答案解析两个槽位，三步生成题库</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><img src="assets/screenshots/07-custom.png" width="100%" alt="自定义练习"><br><b>自定义练习</b><br><sub>范围 / 题型 / 状态筛选与题量联动，顶部「当前设定」摘要</sub></td>
+    <td align="center" width="33%"></td>
+    <td align="center" width="33%"></td>
+  </tr>
+</table>
+
+<sub>截图取自微信开发者工具模拟器，数据为自带示例题库与一份真实行测题库。</sub>
 
 ---
 
